@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_SERVER")
+}
+
+model colegiados {
+  col_id                Int       @id @default(autoincrement())
+  col_persona           Int?
+  col_nro_cop           String?   @db.VarChar(10)
+  col_fecha_colegiatura DateTime? @db.DateTime(0)
+  col_centro_trabajo    String?   @db.VarChar(45)
+  col_st                String?   @db.VarChar(45)
+  col_obs               String?   @db.VarChar(45)
+  col_foto              String?   @db.VarChar(200)
+  col_fech_create       DateTime? @db.DateTime(0)
+  col_fech_update       DateTime? @db.DateTime(0)
+  col_usu_create        String?   @db.VarChar(45)
+  col_usu_update        String?   @db.VarChar(45)
+  persona               persona?  @relation(fields: [col_persona], references: [per_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_col_persona")
+
+  @@index([col_persona], map: "fk_col_persona_idx")
+}
+
+model persona {
+  per_id           Int             @id @default(autoincrement())
+  per_tdoc         Int?
+  per_nro_doc      String?         @unique(map: "usu_nro_doc_UNIQUE") @db.VarChar(25)
+  per_nombre       String?         @db.VarChar(100)
+  per_appat        String?         @db.VarChar(100)
+  per_apmat        String?         @db.VarChar(100)
+  per_sexo         String?         @db.Char(1)
+  per_correo       String?         @db.VarChar(100)
+  per_nacionalidad String?         @db.VarChar(10)
+  per_direccion1   String?         @db.VarChar(150)
+  per_direccion2   String?         @db.VarChar(45)
+  per_lugar_nac    String?         @db.VarChar(6)
+  per_fech_nac     DateTime?       @db.Date
+  per_st           String?         @db.Char(1)
+  per_telf         String?         @db.VarChar(45)
+  per_celular1     String?         @db.VarChar(15)
+  per_celular2     String?         @db.VarChar(15)
+  per_fech_create  DateTime?       @db.DateTime(0)
+  per_fech_update  DateTime?       @db.DateTime(0)
+  per_usu_create   String?         @db.VarChar(45)
+  per_usu_update   String?         @db.VarChar(45)
+  colegiados       colegiados[]
+  tipo_documento   tipo_documento? @relation(fields: [per_tdoc], references: [tdoc_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usu_tdoc")
+  sys_usuario      sys_usuario[]
+
+  @@index([per_tdoc], map: "fk_usu_tdoc_idx")
+}
+
+model sys_control {
+  cont_id      Int         @id @unique(map: "cont_id_UNIQUE") @default(autoincrement())
+  cont_sede    Int
+  cont_usuario String      @db.VarChar(45)
+  cont_perfil  Int
+  cont_st      Int?        @db.TinyInt
+  sys_perfil   sys_perfil  @relation(fields: [cont_perfil], references: [perf_id], onDelete: Cascade, map: "fk_cont_perfil")
+  sys_sede     sys_sede    @relation(fields: [cont_sede], references: [sede_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cont_sede")
+  sys_usuario  sys_usuario @relation(fields: [cont_usuario], references: [usu_id], onDelete: Cascade, map: "fk_cont_usuario")
+
+  @@index([cont_perfil], map: "fk_cont_perfil_idx")
+  @@index([cont_sede], map: "fk_cont_sede_idx")
+  @@index([cont_usuario], map: "fk_cont_usuario_idx")
+}
+
+model sys_dperfil {
+  dperf_id       Int         @id @unique(map: "dperf_id_UNIQUE") @default(autoincrement())
+  dperf_menu     Int
+  dperf_perfil   Int
+  dperf_permisos String      @db.VarChar(45)
+  sys_submenu    sys_submenu @relation(fields: [dperf_menu], references: [submenu_id], onDelete: Cascade, map: "fk_dperf_menu")
+  sys_perfil     sys_perfil  @relation(fields: [dperf_perfil], references: [perf_id], onDelete: Cascade, map: "fk_dperf_perfil")
+
+  @@index([dperf_menu], map: "fk_dperf_menu_idx")
+  @@index([dperf_perfil], map: "fk_dperf_perfil_idx")
+}
+
+model sys_empresa {
+  emp_id        Int        @id @default(autoincrement())
+  emp_ruc       String?    @db.VarChar(11)
+  emp_rznsocial String?    @db.VarChar(200)
+  emp_acro      String?    @db.VarChar(200)
+  emp_direccion String?    @db.VarChar(150)
+  sys_sede      sys_sede[]
+}
+
+model sys_menu {
+  menu_id     Int           @id @default(autoincrement())
+  menu_desc   String?       @db.VarChar(45)
+  sys_submenu sys_submenu[]
+}
+
+model sys_perfil {
+  perf_id     Int           @id @default(autoincrement())
+  perf_desc   String?       @db.VarChar(100)
+  sys_control sys_control[]
+  sys_dperfil sys_dperfil[]
+}
+
+model sys_sede {
+  sede_id        Int           @id @default(autoincrement())
+  sede_empresa   Int
+  sede_nombre    String        @db.VarChar(100)
+  sede_direccion String?       @db.VarChar(100)
+  sys_control    sys_control[]
+  sys_empresa    sys_empresa   @relation(fields: [sede_empresa], references: [emp_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sede_empresa")
+
+  @@index([sede_empresa], map: "fk_sede_empresa_idx")
+}
+
+model sys_submenu {
+  submenu_id     Int           @id @unique(map: "menu_id_UNIQUE") @default(autoincrement())
+  submenu_padre  Int
+  submenu_titulo String        @db.VarChar(45)
+  submenu_icon   String?       @db.VarChar(45)
+  submenu_href   String        @db.VarChar(45)
+  sys_dperfil    sys_dperfil[]
+  sys_menu       sys_menu      @relation(fields: [submenu_padre], references: [menu_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_submenu_padre")
+
+  @@index([submenu_padre], map: "fk_submenu_padre_idx")
+}
+
+model sys_usuario {
+  usu_id          String        @id @db.VarChar(45)
+  usu_correo      String        @unique(map: "usu_correo_UNIQUE") @db.VarChar(90)
+  usu_password    String        @db.VarChar(45)
+  usu_nombre      String        @db.VarChar(45)
+  usu_persona     Int?
+  usu_st          String        @db.VarChar(45)
+  usu_fech_create DateTime?     @db.DateTime(0)
+  usu_fech_update DateTime?     @db.DateTime(0)
+  usu_create      String?       @db.VarChar(45)
+  usu_update      String?       @db.VarChar(45)
+  usu_token       String?       @db.VarChar(45)
+  sys_control     sys_control[]
+  persona         persona?      @relation(fields: [usu_persona], references: [per_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usu_persona")
+
+  @@index([usu_persona], map: "fk_usu_persona_idx")
+}
+
+model tipo_documento {
+  tdoc_id   Int       @id @default(autoincrement())
+  tdoc_desc String?   @db.VarChar(45)
+  persona   persona[]
+}
