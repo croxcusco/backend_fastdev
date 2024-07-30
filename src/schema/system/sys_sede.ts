@@ -1,4 +1,5 @@
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const tipeDefs = `#graphql
 
@@ -38,9 +39,11 @@ interface I_sys_sede {
 const resolvers = {
     Query: {
         getAll_sys_sede: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_sede.findMany()
         },
         getOne_sys_sede: async (_parent: any, args: { sede_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_sede.findUnique({
                 where: {
                     sede_id: args.sede_id
@@ -50,6 +53,7 @@ const resolvers = {
     },
     Mutation: {
         create_sys_sede: async (_parent: any, args: { data: I_sys_sede }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_sede.create({
                 data: {
                     sede_empresa:   args.data.sede_empresa,
@@ -59,6 +63,7 @@ const resolvers = {
             })
         },
         update_sys_sede: async (_parent: any, args: { sede_id: number, data: I_sys_sede }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_sede.update({
                 where: {
                     sede_id: args.sede_id

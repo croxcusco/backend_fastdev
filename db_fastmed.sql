@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: db
--- Tiempo de generación: 29-07-2024 a las 02:52:59
+-- Tiempo de generación: 30-07-2024 a las 07:14:51
 -- Versión del servidor: 9.0.1
 -- Versión de PHP: 8.2.8
 
@@ -31,13 +31,13 @@ CREATE TABLE `colegiados` (
   `col_id` int NOT NULL,
   `col_persona` int DEFAULT NULL,
   `col_nro_cop` varchar(10) DEFAULT NULL,
-  `col_fecha_colegiatura` varchar(45) DEFAULT NULL,
+  `col_fecha_colegiatura` datetime DEFAULT NULL,
   `col_centro_trabajo` varchar(45) DEFAULT NULL,
   `col_st` varchar(45) DEFAULT NULL,
   `col_obs` varchar(45) DEFAULT NULL,
   `col_foto` varchar(200) DEFAULT NULL,
-  `col_fech_create` varchar(45) DEFAULT NULL,
-  `col_fech_update` varchar(45) DEFAULT NULL,
+  `col_fech_create` datetime DEFAULT NULL,
+  `col_fech_update` datetime DEFAULT NULL,
   `col_usu_create` varchar(45) DEFAULT NULL,
   `col_usu_update` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -254,7 +254,7 @@ INSERT INTO `sys_submenu` (`submenu_id`, `submenu_padre`, `submenu_titulo`, `sub
 CREATE TABLE `sys_usuario` (
   `usu_id` varchar(45) NOT NULL,
   `usu_correo` varchar(90) NOT NULL,
-  `usu_password` varchar(45) NOT NULL,
+  `usu_password` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `usu_nombre` varchar(45) NOT NULL,
   `usu_persona` int DEFAULT NULL,
   `usu_st` varchar(45) NOT NULL,
@@ -270,7 +270,7 @@ CREATE TABLE `sys_usuario` (
 --
 
 INSERT INTO `sys_usuario` (`usu_id`, `usu_correo`, `usu_password`, `usu_nombre`, `usu_persona`, `usu_st`, `usu_fech_create`, `usu_fech_update`, `usu_create`, `usu_update`, `usu_token`) VALUES
-('NlNphzL1tU9yuXdjCb9JV24h4', 'russbellc@gmail.com', 'russbellc@gmail.com', 'MIKAIL RUSSBELL CASTRO JARA', 1, '1', '2024-07-25 03:32:52', NULL, 'admin', NULL, NULL);
+('NlNphzL1tU9yuXdjCb9JV24h4', 'russbellc@gmail.com', '$2b$10$/v3B0xRIn0.Y0MmhqA2eYu853tI5jNtxStEWWoAmku0Aay1.xb14O', 'MIKAIL RUSSBELL CASTRO JARA', 1, '1', '2024-07-25 03:32:52', NULL, 'admin', NULL, NULL);
 
 -- --------------------------------------------------------
 

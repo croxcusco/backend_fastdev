@@ -129,7 +129,7 @@ model sys_submenu {
 model sys_usuario {
   usu_id          String        @id @db.VarChar(45)
   usu_correo      String        @unique(map: "usu_correo_UNIQUE") @db.VarChar(90)
-  usu_password    String        @db.VarChar(45)
+  usu_password    String        @db.VarChar(200)
   usu_nombre      String        @db.VarChar(45)
   usu_persona     Int?
   usu_st          String        @db.VarChar(45)

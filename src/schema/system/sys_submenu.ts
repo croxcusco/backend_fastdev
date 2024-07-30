@@ -1,4 +1,5 @@
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const tipeDefs = `#graphql
 
@@ -40,9 +41,11 @@ interface I_sys_submenu {
 const resolvers = {
     Query: {
         getAll_sys_submenu: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_submenu.findMany()
         },
         getOne_sys_submenu: async (_parent: any, args: { submenu_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_submenu.findUnique({
                 where: {
                     submenu_id: args.submenu_id
@@ -52,6 +55,7 @@ const resolvers = {
     },
     Mutation: {
         createsys_submenu: async (_parent: any, args: { data: I_sys_submenu }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_submenu.create({
                 data: {
                     submenu_padre: args.data.submenu_padre,
@@ -62,6 +66,7 @@ const resolvers = {
             })
         },
         updatesys_submenu: async (_parent: any, args: { submenu_id: number, data: I_sys_submenu }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_submenu.update({
                 where: {
                     submenu_id: args.submenu_id

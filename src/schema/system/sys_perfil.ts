@@ -1,4 +1,5 @@
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const tipeDefs = `#graphql 
 
@@ -33,9 +34,11 @@ interface I_sys_perfil {
 const resolvers = {
     Query: {
         getAllsys_perfil: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_perfil.findMany()
         },
         getOnesys_perfil: async (_parent: any, args: { perf_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_perfil.findUnique({
                 where: {
                     perf_id: args.perf_id
@@ -45,6 +48,7 @@ const resolvers = {
     },
     Mutation: {
         create_sys_perfil: async (_parent: any, args: { perf_desc: string }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_perfil.create({
                 data: {
                     perf_desc: args.perf_desc
@@ -52,6 +56,7 @@ const resolvers = {
             })
         },
         update_sys_perfil: async (_parent: any, args: { perf_id: number, data: I_sys_perfil }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_perfil.update({
                 where: {
                     perf_id: args.perf_id

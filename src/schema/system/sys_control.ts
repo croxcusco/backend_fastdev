@@ -1,4 +1,5 @@
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const typeDefs = `#graphql
 
@@ -42,9 +43,11 @@ interface I_sys_control {
 const resolvers = {
     Query: {
         getAll_sys_control: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_control.findMany()
         },
         getOne_sys_control: async (_parent: any, args: { cont_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_control.findUnique({
                 where: {
                     cont_id: args.cont_id
@@ -54,11 +57,13 @@ const resolvers = {
     },
     Mutation: {
         create_sys_control: async (_parent: any, args: { data: I_sys_control }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_control.create({
                 data: args.data
             })
         },
         update_sys_control: async (_parent: any, args: { cont_id: number, data: I_sys_control }, context: Context) => {
+            getUserId(context)
             return await context.prisma.sys_control.update({
                 where: {
                     cont_id: args.cont_id

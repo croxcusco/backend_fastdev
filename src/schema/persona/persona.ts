@@ -1,5 +1,6 @@
 import { DateResolver, DateTimeResolver, DateTimeTypeDefinition, DateTypeDefinition } from 'graphql-scalars';
 import { Context } from '../../context';
+import { getUserId } from '../../utils';
 const typeDefs = `#graphql
     extend type Query {
         getAll_persona: [persona!]!
@@ -88,9 +89,11 @@ const resolvers = {
     DateTime: DateTimeResolver,
     Query: {
         getAll_persona: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.persona.findMany()
         },
         getOne_persona: async (_parent: any, _args: { per_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.persona.findUnique({
                 where: {
                     per_id: _args.per_id
@@ -100,11 +103,13 @@ const resolvers = {
     },
     Mutation: {
         create_persona: async (_parent: any, _args: { data: persona }, context: Context) => {
+            getUserId(context)
             return await context.prisma.persona.create({
                 data: _args.data
             })
         },
         update_persona: async (_parent: any, _args: { per_id: number, data: persona }, context: Context) => {
+            getUserId(context)
             return await context.prisma.persona.update({
                 where: {
                     per_id: _args.per_id

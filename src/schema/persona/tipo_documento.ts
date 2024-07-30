@@ -1,4 +1,5 @@
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const tipeDefs = `#graphql
     
@@ -22,9 +23,11 @@ interface I_tipo_documento {
 const resolver = {
     Query: {
         getAll_tipo_documento: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.tipo_documento.findMany()
         },
         getOne_tipo_documento: async (_parent: any, args: { tdoc_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.tipo_documento.findUnique({
                 where: {
                     tdoc_id: args.tdoc_id

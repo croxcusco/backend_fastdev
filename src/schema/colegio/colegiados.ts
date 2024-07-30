@@ -1,5 +1,6 @@
 import { DateResolver, DateTimeResolver } from "graphql-scalars"
 import { Context } from "../../context"
+import { getUserId } from "../../utils"
 
 const typeDefs = `#graphql
 
@@ -64,9 +65,11 @@ const resolvers = {
     DateTime: DateTimeResolver,
     Query: {
         getAll_colegiados: async (_parent: any, _args: any, context: Context) => {
+            getUserId(context)
             return await context.prisma.colegiados.findMany()
         },
         getOne_colegiados: async (_parent: any, args: { col_id: number }, context: Context) => {
+            getUserId(context)
             return await context.prisma.colegiados.findUnique({
                 where: {
                     col_id: args.col_id
@@ -76,11 +79,13 @@ const resolvers = {
     },
     Mutation: {
         create_colegiados: async (_parent: any, args: { data: I_coolegiados }, context: Context) => {
+            getUserId(context)
             return await context.prisma.colegiados.create({
                 data: args.data
             })
         },
         update_colegiados: async (_parent: any, args: { col_id: number, data: I_coolegiados }, context: Context) => {
+            getUserId(context)
             return await context.prisma.colegiados.update({
                 where: {
                     col_id: args.col_id
