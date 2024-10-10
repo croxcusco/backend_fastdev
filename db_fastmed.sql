@@ -1,31 +1,9 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: db
--- Tiempo de generación: 30-07-2024 a las 07:14:51
--- Versión del servidor: 9.0.1
--- Versión de PHP: 8.2.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: `db_fastmed`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `colegiados`
---
 
 CREATE TABLE `colegiados` (
   `col_id` int NOT NULL,
@@ -40,7 +18,16 @@ CREATE TABLE `colegiados` (
   `col_fech_update` datetime DEFAULT NULL,
   `col_usu_create` varchar(45) DEFAULT NULL,
   `col_usu_update` varchar(45) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `colegiados`
+--
+
+INSERT INTO `colegiados` (`col_id`, `col_persona`, `col_nro_cop`, `col_fecha_colegiatura`, `col_centro_trabajo`, `col_st`, `col_obs`, `col_foto`, `col_fech_create`, `col_fech_update`, `col_usu_create`, `col_usu_update`) VALUES
+(1, 1, '12345', '2024-10-01 05:40:04', 'gatgos', '1', NULL, NULL, '2024-10-09 05:40:04', NULL, 'admin', NULL),
+(2, 2, '123665', '2024-10-04 05:41:06', 'patos', '1', NULL, NULL, '2024-10-09 05:41:06', '2024-10-09 05:41:06', 'admin', NULL),
+(3, 3, '123453', '2024-10-10 05:41:06', 'berta', '1', NULL, NULL, '2024-10-09 05:41:06', NULL, 'admin', NULL);
 
 -- --------------------------------------------------------
 
@@ -70,14 +57,16 @@ CREATE TABLE `persona` (
   `per_fech_update` datetime DEFAULT NULL,
   `per_usu_create` varchar(45) DEFAULT NULL,
   `per_usu_update` varchar(45) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `persona`
 --
 
 INSERT INTO `persona` (`per_id`, `per_tdoc`, `per_nro_doc`, `per_nombre`, `per_appat`, `per_apmat`, `per_sexo`, `per_correo`, `per_nacionalidad`, `per_direccion1`, `per_direccion2`, `per_lugar_nac`, `per_fech_nac`, `per_st`, `per_telf`, `per_celular1`, `per_celular2`, `per_fech_create`, `per_fech_update`, `per_usu_create`, `per_usu_update`) VALUES
-(1, 1, '48357829', 'MIKAIL RUSSBELL', 'CASTRO', 'JARA', 'M', 'russbellc@gmail.com', 'PERUANO', 'AV. DE LA CULTURA 1412', NULL, '070101', '1991-11-13', '1', NULL, '965041491', NULL, '2024-07-25 03:04:16', NULL, 'admin', NULL);
+(1, 1, '48357829', 'MIKAIL RUSSBELL', 'CASTRO', 'JARA', 'M', 'russbellc@gmail.com', 'PERUANO', 'AV. DE LA CULTURA 1412', NULL, '070101', '1991-11-13', '1', NULL, '965041491', NULL, '2024-07-25 03:04:16', NULL, 'admin', NULL),
+(2, 1, '48357822', 'BORIS ISAIAS', 'ARONI', 'CHUMBES', 'M', 'BORIS@GMAIL.COM', 'PERUANO', NULL, NULL, '070101', '2024-11-13', '1', NULL, NULL, NULL, '2024-10-09 05:33:59', NULL, 'admin', NULL),
+(3, 1, '48357845', 'NESTOR', 'COILLULLE', 'VIVANCO', 'M', 'NESTOR@GMAIL.COM', 'PERUANO', NULL, NULL, NULL, '1999-10-08', NULL, NULL, NULL, NULL, '2024-10-10 05:33:59', NULL, 'admin', NULL);
 
 -- --------------------------------------------------------
 
@@ -91,7 +80,7 @@ CREATE TABLE `sys_control` (
   `cont_usuario` varchar(45) NOT NULL,
   `cont_perfil` int NOT NULL,
   `cont_st` tinyint DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_control`
@@ -112,7 +101,7 @@ CREATE TABLE `sys_dperfil` (
   `dperf_menu` int NOT NULL,
   `dperf_perfil` int NOT NULL,
   `dperf_permisos` varchar(45) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_dperfil`
@@ -142,7 +131,7 @@ CREATE TABLE `sys_empresa` (
   `emp_rznsocial` varchar(200) DEFAULT NULL,
   `emp_acro` varchar(200) DEFAULT NULL,
   `emp_direccion` varchar(150) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_empresa`
@@ -161,7 +150,7 @@ INSERT INTO `sys_empresa` (`emp_id`, `emp_ruc`, `emp_rznsocial`, `emp_acro`, `em
 CREATE TABLE `sys_menu` (
   `menu_id` int NOT NULL,
   `menu_desc` varchar(45) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_menu`
@@ -182,7 +171,7 @@ INSERT INTO `sys_menu` (`menu_id`, `menu_desc`) VALUES
 CREATE TABLE `sys_perfil` (
   `perf_id` int NOT NULL,
   `perf_desc` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_perfil`
@@ -206,7 +195,7 @@ CREATE TABLE `sys_sede` (
   `sede_empresa` int NOT NULL,
   `sede_nombre` varchar(100) NOT NULL,
   `sede_direccion` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_sede`
@@ -225,10 +214,10 @@ INSERT INTO `sys_sede` (`sede_id`, `sede_empresa`, `sede_nombre`, `sede_direccio
 CREATE TABLE `sys_submenu` (
   `submenu_id` int NOT NULL,
   `submenu_padre` int NOT NULL,
-  `submenu_titulo` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `submenu_titulo` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `submenu_icon` varchar(45) DEFAULT NULL,
   `submenu_href` varchar(45) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_submenu`
@@ -254,7 +243,7 @@ INSERT INTO `sys_submenu` (`submenu_id`, `submenu_padre`, `submenu_titulo`, `sub
 CREATE TABLE `sys_usuario` (
   `usu_id` varchar(45) NOT NULL,
   `usu_correo` varchar(90) NOT NULL,
-  `usu_password` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `usu_password` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `usu_nombre` varchar(45) NOT NULL,
   `usu_persona` int DEFAULT NULL,
   `usu_st` varchar(45) NOT NULL,
@@ -263,7 +252,7 @@ CREATE TABLE `sys_usuario` (
   `usu_create` varchar(45) DEFAULT NULL,
   `usu_update` varchar(45) DEFAULT NULL,
   `usu_token` varchar(45) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `sys_usuario`
@@ -281,7 +270,7 @@ INSERT INTO `sys_usuario` (`usu_id`, `usu_correo`, `usu_password`, `usu_nombre`,
 CREATE TABLE `tipo_documento` (
   `tdoc_id` int NOT NULL,
   `tdoc_desc` varchar(45) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tipo_documento`
@@ -384,13 +373,13 @@ ALTER TABLE `tipo_documento`
 -- AUTO_INCREMENT de la tabla `colegiados`
 --
 ALTER TABLE `colegiados`
-  MODIFY `col_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `col_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `per_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `per_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `sys_control`

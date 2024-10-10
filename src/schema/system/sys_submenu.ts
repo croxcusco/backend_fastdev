@@ -41,7 +41,7 @@ interface I_sys_submenu {
 const resolvers = {
     Query: {
         getAll_sys_submenu: async (_parent: any, _args: any, context: Context) => {
-            getUserId(context)
+            // getUserId(context)
             return await context.prisma.sys_submenu.findMany()
         },
         getOne_sys_submenu: async (_parent: any, args: { submenu_id: number }, context: Context) => {
