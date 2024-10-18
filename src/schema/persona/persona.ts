@@ -89,7 +89,7 @@ const resolvers = {
     DateTime: DateTimeResolver,
     Query: {
         getAll_persona: async (_parent: any, _args: any, context: Context) => {
-            getUserId(context)
+            // getUserId(context)
             return await context.prisma.persona.findMany()
         },
         getOne_persona: async (_parent: any, _args: { per_id: number }, context: Context) => {
