@@ -8,7 +8,7 @@ const typeDefs = `#graphql
     }
 
     extend type Mutation {
-        create_persona(data: personaInput!): persona
+        create_persona(data: personaForm!): persona
         update_persona(per_id: Int!, data: personaInput!): persona
     }
     
@@ -25,7 +25,7 @@ const typeDefs = `#graphql
         per_direccion1:   String
         per_direccion2:   String
         per_lugar_nac:    String
-        per_fech_nac:     DateTime
+        per_fech_nac:     String
         per_st:           String
         per_telf:         String
         per_celular1:     String
@@ -50,11 +50,35 @@ const typeDefs = `#graphql
         per_direccion1:   String
         per_direccion2:   String
         per_lugar_nac:    String
-        per_fech_nac:     DateTime
+        per_fech_nac:     String
         per_st:           String
         per_telf:         String
         per_celular1:     String
         per_celular2:     String
+    }
+
+    input personaForm {
+        col_nro_cop:            String
+        col_fecha_colegiatura:  Date
+        col_st:                 String
+        col_obs:                String
+        col_centro_trabajo:     String
+        per_tdoc:               Int
+        per_sexo:               String
+        per_nro_doc:            String
+        per_nombre:             String
+        per_appat:              String
+        per_apmat:              String
+        per_correo:             String
+        per_nacionalidad:       String
+        per_direccion1:         String
+        per_direccion2:         String
+        per_lugar_nac:          String
+        per_fech_nac:           String
+        per_st:                 String
+        per_telf:               String
+        per_celular1:           String
+        per_celular2:           String
     }
 
     scalar DateTime
@@ -73,7 +97,7 @@ interface persona {
     per_direccion1: string
     per_direccion2: string
     per_lugar_nac: string
-    per_fech_nac: Date
+    per_fech_nac: string
     per_st: string
     per_telf: string
     per_celular1: string
@@ -82,6 +106,30 @@ interface persona {
     per_fech_update: Date
     per_usu_create: string
     per_usu_update: string
+}
+
+interface formPersona {
+    col_nro_cop: string,
+    col_fecha_colegiatura: Date,
+    col_st: string,
+    col_obs: string,
+    col_centro_trabajo: string,
+    per_tdoc: number,
+    per_sexo: string,
+    per_nro_doc: string,
+    per_nombre: string,
+    per_appat: string,
+    per_apmat: string,
+    per_correo: string,
+    per_nacionalidad: string,
+    per_direccion1: string,
+    per_direccion2: string,
+    per_lugar_nac: string,
+    per_fech_nac: string,
+    per_st: string,
+    per_telf: string,
+    per_celular1: string,
+    per_celular2: string,
 }
 
 const resolvers = {
@@ -102,11 +150,19 @@ const resolvers = {
         }
     },
     Mutation: {
-        create_persona: async (_parent: any, _args: { data: persona }, context: Context) => {
-            getUserId(context)
-            return await context.prisma.persona.create({
-                data: _args.data
+        create_persona: async (_parent: any, _args: { data: formPersona }, context: Context) => {
+            // getUserId(context)
+
+            const { data } = _args
+            return await context.prisma.persona.findUnique({
+                where: {
+                    per_nro_doc: data.per_nro_doc
+                }
             })
+
+            // return await context.prisma.persona.create({
+            //     data: _args.data
+            // })
         },
         update_persona: async (_parent: any, _args: { per_id: number, data: persona }, context: Context) => {
             getUserId(context)
