@@ -1,9 +1,10 @@
 import { DateResolver, DateTimeResolver, DateTimeTypeDefinition, DateTypeDefinition } from 'graphql-scalars';
 import { Context } from '../../context';
 import { getUserId } from '../../utils';
+import { now } from 'moment-timezone';
 const typeDefs = `#graphql
     extend type Query {
-        getAll_persona: [persona!]!
+        getAll_persona(first: Int, after: Int): [persona!]!
         getOne_persona(per_id: Int!): persona
     }
 
@@ -59,7 +60,7 @@ const typeDefs = `#graphql
 
     input personaForm {
         col_nro_cop:            String
-        col_fecha_colegiatura:  Date
+        col_fecha_colegiatura:  DateTime
         col_st:                 String
         col_obs:                String
         col_centro_trabajo:     String
@@ -85,27 +86,27 @@ const typeDefs = `#graphql
     scalar Date
 `
 interface persona {
-    per_id: number
-    per_tdoc: number
-    per_nro_doc: string
-    per_nombre: string
-    per_appat: string
-    per_apmat: string
-    per_sexo: string
-    per_correo: string
-    per_nacionalidad: string
-    per_direccion1: string
-    per_direccion2: string
-    per_lugar_nac: string
-    per_fech_nac: string
-    per_st: string
-    per_telf: string
-    per_celular1: string
-    per_celular2: string
-    per_fech_create: Date
-    per_fech_update: Date
-    per_usu_create: string
-    per_usu_update: string
+    per_id: number;
+    per_tdoc: number | null;
+    per_nro_doc: string | null;
+    per_nombre: string | null;
+    per_appat: string | null;
+    per_apmat: string | null;
+    per_sexo: string | null;
+    per_correo: string | null;
+    per_nacionalidad: string | null;
+    per_direccion1: string | null;
+    per_direccion2: string | null;
+    per_lugar_nac: string | null;
+    per_fech_nac: string | null;
+    per_st: string | null;
+    per_telf: string | null;
+    per_celular1: string | null;
+    per_celular2: string | null;
+    per_fech_create: Date | null;
+    per_fech_update: Date | null;
+    per_usu_create: string | null;
+    per_usu_update: string | null;
 }
 
 interface formPersona {
@@ -136,11 +137,21 @@ const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
     Query: {
-        getAll_persona: async (_parent: any, _args: any, context: Context) => {
-            // getUserId(context)
-            return await context.prisma.persona.findMany()
+        getAll_persona: async (
+            _parent: unknown,
+            { first = 10, after = 0 }: { first?: number; after?: number },
+            context: Context
+        ): Promise<persona[]> => {
+            const MAX_RECORDS = 100;
+            const take = Math.min(first, MAX_RECORDS);
+
+            return await context.prisma.persona.findMany({
+                orderBy: { per_id: 'desc' },
+                skip: after,
+                take
+            });
         },
-        getOne_persona: async (_parent: any, _args: { per_id: number }, context: Context) => {
+        getOne_persona: async (_parent: unknown, _args: { per_id: number }, context: Context) => {
             getUserId(context)
             return await context.prisma.persona.findUnique({
                 where: {
@@ -154,15 +165,59 @@ const resolvers = {
             // getUserId(context)
 
             const { data } = _args
-            return await context.prisma.persona.findUnique({
+
+            const verificaNroDoc = await context.prisma.persona.findUnique({
                 where: {
                     per_nro_doc: data.per_nro_doc
                 }
             })
 
-            // return await context.prisma.persona.create({
-            //     data: _args.data
-            // })
+            if (verificaNroDoc) throw new Error('El Nro de Documento ya existe')
+
+            const verificaCorreo = await context.prisma.persona.findMany({
+                where: {
+                    per_correo: data.per_correo
+                }
+            })
+
+            if (verificaCorreo.length > 0) throw new Error('El Correo ya existe')
+
+            console.log(verificaCorreo)
+
+            return await context.prisma.persona.create({
+                data: {
+                    per_tdoc: data.per_tdoc,
+                    per_nro_doc: data.per_nro_doc,
+                    per_nombre: data.per_nombre,
+                    per_appat: data.per_appat,
+                    per_apmat: data.per_apmat,
+                    per_sexo: data.per_sexo,
+                    per_correo: data.per_correo,
+                    per_nacionalidad: data.per_nacionalidad,
+                    per_direccion1: data.per_direccion1,
+                    per_direccion2: data.per_direccion2,
+                    per_lugar_nac: data.per_lugar_nac,
+                    per_fech_nac: data.per_fech_nac,
+                    per_st: data.per_st,
+                    per_telf: data.per_telf,
+                    per_celular1: data.per_celular1,
+                    per_celular2: data.per_celular2,
+                    per_fech_create: new Date(),
+                    per_usu_create: "admin",
+                    colegiados: {
+                        create: {
+                            col_nro_cop: data.col_nro_cop,
+                            col_fecha_colegiatura: data.col_fecha_colegiatura,
+                            col_centro_trabajo: data.col_centro_trabajo,
+                            col_st: data.col_st,
+                            col_obs: data.col_obs,
+                            col_foto: "foto.jpg",
+                            col_fech_create: new Date(),
+                            col_usu_create: "admin"
+                        }
+                    }
+                }
+            })
         },
         update_persona: async (_parent: any, _args: { per_id: number, data: persona }, context: Context) => {
             getUserId(context)
