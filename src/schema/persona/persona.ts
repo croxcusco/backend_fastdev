@@ -4,7 +4,7 @@ import { getUserId } from '../../utils';
 import { now } from 'moment-timezone';
 const typeDefs = `#graphql
     extend type Query {
-        getAll_persona(first: Int, after: Int): [persona!]!
+        getAll_persona(first: Int, after: String, filter: String): PersonaConnection!
         getOne_persona(per_id: Int!): persona
     }
 
@@ -37,6 +37,21 @@ const typeDefs = `#graphql
         per_usu_update:   String
         tipo_documento:   tipo_documento
         colegiados:       [colegiados]
+    }
+
+    type PersonaConnection {
+        edges: [PersonaEdge!]!
+        pageInfo: PageInfo!
+    }
+
+    type PersonaEdge {
+        cursor: String!
+        node: persona!
+    }
+
+    type PageInfo {
+        hasNextPage: Boolean!
+        endCursor: String
     }
 
     input personaInput {
@@ -87,7 +102,7 @@ const typeDefs = `#graphql
 `
 interface persona {
     per_id: number;
-    per_tdoc: number | null;
+    per_tdoc: number;
     per_nro_doc: string | null;
     per_nombre: string | null;
     per_appat: string | null;
@@ -133,23 +148,89 @@ interface formPersona {
     per_celular2: string,
 }
 
+interface PersonaConnection {
+    edges: { node: persona; cursor: string }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+}
+
+interface PersonaPageFilter {
+    first?: number;
+    after?: string | null;
+    filter?: string | null;
+}
+
+
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
     Query: {
         getAll_persona: async (
             _parent: unknown,
-            { first = 10, after = 0 }: { first?: number; after?: number },
+            { first = 10, after = null, filter = "" }: PersonaPageFilter,
             context: Context
-        ): Promise<persona[]> => {
-            const MAX_RECORDS = 100;
-            const take = Math.min(first, MAX_RECORDS);
+        ): Promise<PersonaConnection> => {
+            const take = Math.min(first, 100); // Límite máximo de registros
+            const decodedCursor = after ? parseInt(Buffer.from(after, 'base64').toString('ascii')) : null;
 
-            return await context.prisma.persona.findMany({
-                orderBy: { per_id: 'desc' },
-                skip: after,
-                take
-            });
+            // Construcción del filtro dinámico
+            const where = filter
+                ? {
+                    OR: [
+                        // Filtro por concatenación de nombre completo
+                        {
+                            OR: filter.split(' ').map((word) => ({
+                                OR: [
+                                    { per_appat: { contains: word} },
+                                    { per_apmat: { contains: word} },
+                                    { per_nombre: { contains: word} },
+                                ],
+                            })),
+                        },
+                        // Filtro por número de documento
+                        { per_nro_doc: { contains: filter } },
+                        // Filtro por número de colegiado
+                        {
+                            colegiados: {
+                                some: { col_nro_cop: { contains: filter } },
+                            },
+                        },
+                    ],
+                }
+                : {}; // Sin filtro si `filter` está vacío
+
+            try {
+                // Consulta con cursor
+                const personas = await context.prisma.persona.findMany({
+                    where,
+                    orderBy: { per_id: 'desc' },
+                    cursor: decodedCursor ? { per_id: decodedCursor } : undefined,
+                    skip: decodedCursor ? 1 : 0,
+                    take: take + 1 // Obtener un registro extra para determinar `hasNextPage`
+                });
+                // Determinar si hay más páginas
+                const hasNextPage = personas.length > take;
+                if (hasNextPage) personas.pop(); // Quitar el registro extra
+
+                // Crear edges con nodos y cursores
+                const edges = personas.map((persona) => ({
+                    node: persona,
+                    cursor: Buffer.from(persona.per_id.toString()).toString('base64'),
+                }));
+
+                // Obtener el cursor final
+                const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+
+                return {
+                    edges,
+                    pageInfo: {
+                        hasNextPage,
+                        endCursor,
+                    },
+                } as PersonaConnection;
+            } catch (error) {
+                console.error('Error al obtener personas:', error);
+                throw new Error('Error al obtener personas');
+            }
         },
         getOne_persona: async (_parent: unknown, _args: { per_id: number }, context: Context) => {
             getUserId(context)

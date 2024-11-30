@@ -38,7 +38,7 @@ model persona {
   per_direccion1   String?         @db.VarChar(150)
   per_direccion2   String?         @db.VarChar(45)
   per_lugar_nac    String?         @db.VarChar(20)
-  per_fech_nac     String?         @db.VarChar(20)
+  per_fech_nac     String?         @db.VarChar(10)
   per_st           String?         @db.VarChar(20)
   per_telf         String?         @db.VarChar(45)
   per_celular1     String?         @db.VarChar(15)
