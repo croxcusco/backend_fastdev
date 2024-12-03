@@ -171,22 +171,50 @@ const resolvers = {
         ): Promise<PersonaConnection> => {
             const take = Math.min(first, 100); // Límite máximo de registros
             const decodedCursor = after ? parseInt(Buffer.from(after, 'base64').toString('ascii')) : null;
+            const convertido = Number(filter);
+
+            if (typeof filter === 'string' && isNaN(convertido)) {
+                // 
+                try {
+                    // Consulta con cursor utilizando raw query
+                    const personas = await context.prisma.$queryRaw<persona[]>`
+                        SELECT * 
+                        FROM persona
+                        WHERE CONCAT(per_nombre, ' ', per_appat, ' ', per_apmat) LIKE ${`%${filter}%`}
+                        ORDER BY per_id DESC
+                        LIMIT ${take + 1} OFFSET ${decodedCursor || 0}
+                    `;
+
+                    // Determinar si hay más páginas
+                    const hasNextPage = personas.length > take;
+                    if (hasNextPage) personas.pop(); // Quitar el registro extra
+
+                    // Crear edges con nodos y cursores
+                    const edges = personas.map((persona) => ({
+                        node: persona,
+                        cursor: Buffer.from(persona.per_id.toString()).toString('base64'),
+                    }));
+
+                    // Obtener el cursor final
+                    const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+
+                    return {
+                        edges,
+                        pageInfo: {
+                            hasNextPage,
+                            endCursor,
+                        },
+                    } as PersonaConnection;
+                } catch (error) {
+                    console.error('Error al obtener personas:', error);
+                    throw new Error('Error al obtener personas');
+                }
+            }
 
             // Construcción del filtro dinámico
             const where = filter
                 ? {
                     OR: [
-                        // Filtro por concatenación de nombre completo
-                        {
-                            OR: filter.split(' ').map((word) => ({
-                                OR: [
-                                    { per_appat: { contains: word} },
-                                    { per_apmat: { contains: word} },
-                                    { per_nombre: { contains: word} },
-                                ],
-                            })),
-                        },
-                        // Filtro por número de documento
                         { per_nro_doc: { contains: filter } },
                         // Filtro por número de colegiado
                         {
