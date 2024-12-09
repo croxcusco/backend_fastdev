@@ -2,6 +2,7 @@ import { DateResolver, DateTimeResolver, DateTimeTypeDefinition, DateTypeDefinit
 import { Context } from '../../context';
 import { getUserId } from '../../utils';
 import { now } from 'moment-timezone';
+
 const typeDefs = `#graphql
     extend type Query {
         getAll_persona(first: Int, after: String, filter: String): PersonaConnection!
@@ -10,7 +11,8 @@ const typeDefs = `#graphql
 
     extend type Mutation {
         create_persona(data: personaForm!): persona
-        update_persona(per_id: Int!, data: personaInput!): persona
+        update_persona(per_id: Int!, fieldName: String!, value: String): persona
+        # per_id: number, fieldName: string, value: any
     }
     
     type persona {
@@ -55,12 +57,12 @@ const typeDefs = `#graphql
     }
 
     input personaInput {
-        per_tdoc:         Int!
-        per_nro_doc:      String!
-        per_nombre:       String!
-        per_appat:        String!
+        per_tdoc:         Int
+        per_nro_doc:      String
+        per_nombre:       String
+        per_appat:        String
         per_apmat:        String
-        per_sexo:         String!
+        per_sexo:         String
         per_correo:       String
         per_nacionalidad: String
         per_direccion1:   String
@@ -99,6 +101,7 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
+    scalar JSON
 `
 interface persona {
     per_id: number;
@@ -261,12 +264,20 @@ const resolvers = {
             }
         },
         getOne_persona: async (_parent: unknown, _args: { per_id: number }, context: Context) => {
-            getUserId(context)
-            return await context.prisma.persona.findUnique({
-                where: {
-                    per_id: _args.per_id
-                }
-            })
+            // getUserId(context)
+            if (!_args.per_id) throw new Error('ID de persona no proporcionado')
+            if (isNaN(_args.per_id)) throw new Error('ID de persona debe ser un número válido')
+
+            try {
+                const resp = await context.prisma.persona.findUnique({
+                    where: {
+                        per_id: _args.per_id
+                    }
+                })
+                return resp
+            } catch (error) {
+                throw new Error(`Registro no encontrado ${error}`)
+            }
         }
     },
     Mutation: {
@@ -328,14 +339,121 @@ const resolvers = {
                 }
             })
         },
-        update_persona: async (_parent: any, _args: { per_id: number, data: persona }, context: Context) => {
-            getUserId(context)
-            return await context.prisma.persona.update({
-                where: {
-                    per_id: _args.per_id
-                },
-                data: _args.data
-            })
+        update_persona: async (_parent: any, _args: { per_id: number, fieldName: string, value: string }, context: Context) => {
+            // getUserId(context);
+
+            // Lista de campos y su tipo de datos esperado
+            const fieldTypes: { [key: string]: string } = {
+                col_nro_cop: "string",
+                col_fecha_colegiatura: "Date",
+                col_st: "string",
+                col_obs: "string",
+                col_centro_trabajo: "string",
+                per_tdoc: "number",
+                per_sexo: "string",
+                per_nro_doc: "string",
+                per_nombre: "string",
+                per_appat: "string",
+                per_apmat: "string",
+                per_correo: "string",
+                per_nacionalidad: "string",
+                per_direccion1: "string",
+                per_direccion2: "string",
+                per_lugar_nac: "string",
+                per_fech_nac: "string",
+                per_st: "string",
+                per_telf: "string",
+                per_celular1: "string",
+                per_celular2: "string",
+            };
+
+            // Verificar si el campo existe en la lista de campos válidos
+            if (!(_args.fieldName in fieldTypes)) {
+                throw new Error(`El campo ${_args.fieldName} no es válido para actualización.`);
+            }
+
+            // Validación y conversión del valor dependiendo del tipo de campo
+            let formattedValue: number | string | Date = _args.value;
+            switch (fieldTypes[_args.fieldName]) {
+                case 'number':
+                    formattedValue = +_args.value
+                    if (isNaN(formattedValue)) throw new Error(`El valor de ${_args.fieldName} debe ser un número válido.`)
+                    break;
+                case 'Date':
+                    // Asumimos que el valor es una fecha en formato string, lo convertimos a Date                    
+                    const dateValue: Date = new Date(_args.value);
+                    formattedValue = dateValue;
+                    if (isNaN(dateValue.getTime())) throw new Error(`El valor de ${_args.fieldName} debe ser una fecha válida.`)
+                    break;
+                case 'string':
+                    // En este caso, solo aseguramos que el valor sea una cadena
+                    if (typeof _args.value !== 'string') throw new Error(`El valor de ${_args.fieldName} debe ser un string.`)
+                    break;
+                default:
+                    throw new Error(`Tipo de dato desconocido para el campo ${_args.fieldName}.`);
+            }
+            let validaId = []
+
+            try {
+                validaId = await context.prisma.colegiados.findMany({
+                    where: {
+                        col_persona: _args.per_id
+                    }
+                })
+            } catch (error) {
+                throw new Error(`Error al actualizar la persona: ${error}`);
+            }
+
+            const isColField = _args.fieldName.startsWith("col_");
+
+            if (isColField) {
+                try {
+                    // Realizar la actualización de un solo campo con el valor formateado
+                    const updatedPersona = await context.prisma.persona.update({
+                        where: {
+                            per_id: _args.per_id
+                        },
+                        data: {
+                            colegiados: {
+                                update: {
+                                    where: {
+                                        col_id: validaId[0].col_id
+                                    },
+                                    data: {
+                                        [_args.fieldName]: formattedValue,
+                                        col_fech_update: new Date(),
+                                        col_usu_update: "admin"
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    return updatedPersona;
+                } catch (error) {
+                    throw new Error(`Error al actualizar la persona: ${error}`);
+                }
+            }
+            else {
+                try {
+                    // Realizar la actualización de un solo campo con el valor formateado
+                    const updatedPersona = await context.prisma.persona.update({
+                        where: {
+                            per_id: _args.per_id
+                        },
+                        data: {
+                            // Usamos la clave del campo dinámicamente para actualizar solo ese campo
+                            [_args.fieldName]: formattedValue,
+                            per_fech_update: new Date(),
+                            per_usu_update: "admin"
+                        }
+                    });
+
+                    return updatedPersona;
+                } catch (error) {
+                    throw new Error(`Error al actualizar la persona: ${error}`);
+                }
+            }
         }
     },
     persona: {
