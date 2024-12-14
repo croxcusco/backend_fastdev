@@ -180,9 +180,11 @@ const resolvers = {
         pago_otros: async (_parent: concepto, _args: any, context: Context) => {
             return await context.prisma.pago_otros.findMany({
                 where: {
-                    // pago_concepto: _parent.conc_id
+                    pago_o_concepto: _parent.conc_id
                 }
             })
         }
     }
 }
+
+export { typeDefs as conceptoTypeDefs, resolvers as conceptoResolvers }
