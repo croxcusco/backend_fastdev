@@ -101,7 +101,6 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
-    scalar JSON
 `
 interface persona {
     per_id: number;

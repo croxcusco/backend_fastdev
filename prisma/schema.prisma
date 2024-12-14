@@ -8,19 +8,21 @@ datasource db {
 }
 
 model colegiados {
-  col_id                Int       @id @default(autoincrement())
+  col_id                Int            @id @default(autoincrement())
   col_persona           Int?
-  col_nro_cop           String?   @db.VarChar(10)
-  col_fecha_colegiatura DateTime? @db.DateTime(0)
-  col_centro_trabajo    String?   @db.VarChar(45)
-  col_st                String?   @db.VarChar(20)
-  col_obs               String?   @db.VarChar(45)
-  col_foto              String?   @db.VarChar(200)
-  col_fech_create       DateTime? @db.DateTime(0)
-  col_fech_update       DateTime? @db.DateTime(0)
-  col_usu_create        String?   @db.VarChar(45)
-  col_usu_update        String?   @db.VarChar(45)
-  persona               persona?  @relation(fields: [col_persona], references: [per_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_col_persona")
+  col_nro_cop           String?        @db.VarChar(10)
+  col_fecha_colegiatura DateTime?      @db.DateTime(0)
+  col_centro_trabajo    String?        @db.VarChar(45)
+  col_st                String?        @db.VarChar(20)
+  col_obs               String?        @db.VarChar(45)
+  col_foto              String?        @db.VarChar(200)
+  col_fech_create       DateTime?      @db.DateTime(0)
+  col_fech_update       DateTime?      @db.DateTime(0)
+  col_usu_create        String?        @db.VarChar(45)
+  col_usu_update        String?        @db.VarChar(45)
+  aportaciones          aportaciones[]
+  persona               persona?       @relation(fields: [col_persona], references: [per_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_col_persona")
+  pago                  pago[]
 
   @@index([col_persona], map: "fk_col_persona_idx")
 }
@@ -37,8 +39,8 @@ model persona {
   per_nacionalidad String?         @db.VarChar(10)
   per_direccion1   String?         @db.VarChar(150)
   per_direccion2   String?         @db.VarChar(45)
-  per_lugar_nac    String?         @db.VarChar(20)
-  per_fech_nac     String?         @db.VarChar(10)
+  per_lugar_nac    String?         @db.VarChar(6)
+  per_fech_nac     String?         @db.VarChar(20)
   per_st           String?         @db.VarChar(20)
   per_telf         String?         @db.VarChar(45)
   per_celular1     String?         @db.VarChar(15)
@@ -48,7 +50,7 @@ model persona {
   per_usu_create   String?         @db.VarChar(45)
   per_usu_update   String?         @db.VarChar(45)
   colegiados       colegiados[]
-  tipo_documento   tipo_documento? @relation(fields: [per_tdoc], references: [tdoc_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usu_tdoc")
+  tipo_documento   tipo_documento? @relation(fields: [per_tdoc], references: [tdoc_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_usu_tdoc")
   sys_usuario      sys_usuario[]
 
   @@index([per_tdoc], map: "fk_usu_tdoc_idx")
@@ -61,7 +63,7 @@ model sys_control {
   cont_perfil  Int
   cont_st      Int?        @db.TinyInt
   sys_perfil   sys_perfil  @relation(fields: [cont_perfil], references: [perf_id], onDelete: Cascade, map: "fk_cont_perfil")
-  sys_sede     sys_sede    @relation(fields: [cont_sede], references: [sede_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cont_sede")
+  sys_sede     sys_sede    @relation(fields: [cont_sede], references: [sede_id], onUpdate: Restrict, map: "fk_cont_sede")
   sys_usuario  sys_usuario @relation(fields: [cont_usuario], references: [usu_id], onDelete: Cascade, map: "fk_cont_usuario")
 
   @@index([cont_perfil], map: "fk_cont_perfil_idx")
@@ -109,7 +111,7 @@ model sys_sede {
   sede_nombre    String        @db.VarChar(100)
   sede_direccion String?       @db.VarChar(100)
   sys_control    sys_control[]
-  sys_empresa    sys_empresa   @relation(fields: [sede_empresa], references: [emp_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sede_empresa")
+  sys_empresa    sys_empresa   @relation(fields: [sede_empresa], references: [emp_id], onUpdate: Restrict, map: "fk_sede_empresa")
 
   @@index([sede_empresa], map: "fk_sede_empresa_idx")
 }
@@ -121,7 +123,7 @@ model sys_submenu {
   submenu_icon   String?       @db.VarChar(45)
   submenu_href   String        @db.VarChar(45)
   sys_dperfil    sys_dperfil[]
-  sys_menu       sys_menu      @relation(fields: [submenu_padre], references: [menu_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_submenu_padre")
+  sys_menu       sys_menu      @relation(fields: [submenu_padre], references: [menu_id], onUpdate: Restrict, map: "fk_submenu_padre")
 
   @@index([submenu_padre], map: "fk_submenu_padre_idx")
 }
@@ -139,7 +141,7 @@ model sys_usuario {
   usu_update      String?       @db.VarChar(45)
   usu_token       String?       @db.VarChar(45)
   sys_control     sys_control[]
-  persona         persona?      @relation(fields: [usu_persona], references: [per_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usu_persona")
+  persona         persona?      @relation(fields: [usu_persona], references: [per_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_usu_persona")
 
   @@index([usu_persona], map: "fk_usu_persona_idx")
 }
@@ -148,4 +150,101 @@ model tipo_documento {
   tdoc_id   Int       @id @default(autoincrement())
   tdoc_desc String?   @db.VarChar(45)
   persona   persona[]
+}
+
+model aportaciones {
+  aport_id           Int        @id @default(autoincrement())
+  aport_colegiado    Int
+  aport_pago         Int
+  aport_periodo      Int
+  aport_mes          Int
+  aport_monto        Decimal    @db.Decimal(10, 2)
+  aport_fecha        DateTime   @db.DateTime(0)
+  aport_usu_create   String?    @db.VarChar(45)
+  aport_fecha_create DateTime?  @db.DateTime(0)
+  aport_usu_update   String?    @db.VarChar(45)
+  aport_fecha_update DateTime?  @db.DateTime(0)
+  colegiados         colegiados @relation(fields: [aport_colegiado], references: [col_id], onUpdate: Restrict, map: "fk_aport_colegiado")
+  pago               pago       @relation(fields: [aport_pago], references: [pago_id], onUpdate: Restrict, map: "fk_aport_pago")
+  periodos           periodos   @relation(fields: [aport_periodo], references: [period_id], onUpdate: Restrict, map: "fk_aport_periodo")
+
+  @@index([aport_colegiado], map: "fk_aport_colegiado_idx")
+  @@index([aport_pago], map: "fk_aport_pago_idx")
+  @@index([aport_periodo], map: "fk_aport_periodo_idx")
+}
+
+model concepto {
+  conc_id           Int          @id @default(autoincrement())
+  conc_nombre       String       @db.VarChar(45)
+  conc_precio       Decimal      @db.Decimal(10, 2)
+  conc_desc         String?      @db.VarChar(45)
+  conc_usu_create   String?      @db.VarChar(45)
+  conc_fecha_create DateTime?    @db.DateTime(0)
+  conc_usu_update   String?      @db.VarChar(45)
+  conc_fecha_update DateTime?    @db.DateTime(0)
+  pago_otros        pago_otros[]
+}
+
+model pago_otros {
+  pago_o_id           Int       @id @default(autoincrement())
+  pago_o_pago         Int
+  pago_o_concepto     Int
+  pago_o_desc         String?   @db.VarChar(45)
+  pago_o_importe      Decimal   @db.Decimal(10, 2)
+  pago_o_usu_create   String?   @db.VarChar(45)
+  pago_o_fecha_create DateTime? @db.DateTime(0)
+  pago_o_usu_update   String?   @db.VarChar(45)
+  pago_o_fecha_update DateTime? @db.DateTime(0)
+  concepto            concepto  @relation(fields: [pago_o_concepto], references: [conc_id], onUpdate: Restrict, map: "fk_pago_o_concepto")
+  pago                pago      @relation(fields: [pago_o_pago], references: [pago_id], onUpdate: Restrict, map: "fk_pago_o_pago")
+
+  @@index([pago_o_concepto], map: "fk_pago_o_concepto_idx")
+  @@index([pago_o_pago], map: "fk_pago_o_pago_idx")
+}
+
+model pago {
+  pago_id              Int            @id @default(autoincrement())
+  pago_colegiado       Int
+  pago_fecha           DateTime       @db.DateTime(0)
+  pago_monto_total     Decimal        @db.Decimal(10, 2)
+  pago_nro_boletaventa String?        @db.VarChar(45)
+  pago_recibo          String?        @db.VarChar(45)
+  pago_notas           String?        @db.VarChar(45)
+  pago_aporte          Decimal?       @db.Decimal(10, 2)
+  pago_otros           Decimal?       @db.Decimal(10, 2)
+  pago_usu_create      String?        @db.VarChar(45)
+  pago_fecha_create    DateTime?      @db.DateTime(0)
+  pago_usu_update      String?        @db.VarChar(45)
+  pago_fecha_update    DateTime?      @db.DateTime(0)
+  aportaciones         aportaciones[]
+  colegiados           colegiados     @relation(fields: [pago_colegiado], references: [col_id], onUpdate: Restrict, map: "fk_pago_colegiado")
+  detalle_pago_otros   pago_otros[]
+
+  @@index([pago_colegiado], map: "fk_pago_colegiado_idx")
+}
+
+model periodos {
+  period_id           Int            @id @default(autoincrement())
+  period_anio         Int
+  period_cuota        Decimal        @db.Decimal(10, 2)
+  period_desc         String?        @db.VarChar(45)
+  period_usu_create   String?        @db.VarChar(45)
+  period_fecha_create DateTime?      @db.DateTime(0)
+  period_usu_update   String?        @db.VarChar(45)
+  period_fecha_update DateTime?      @db.DateTime(0)
+  aportaciones        aportaciones[]
+}
+
+model web {
+  web_id           Int       @id @default(autoincrement())
+  web_categoria    Int
+  web_titulo       String    @db.VarChar(45)
+  web_mini_desc    String?   @db.VarChar(45)
+  web_desc         String?   @db.VarChar(500)
+  web_img          String?   @db.VarChar(100)
+  web_st           Int?
+  web_usu_create   String?   @db.VarChar(45)
+  web_fecha_create DateTime? @db.DateTime(0)
+  web_usu_update   String?   @db.VarChar(45)
+  web_fecha_update DateTime? @db.DateTime(0)
 }

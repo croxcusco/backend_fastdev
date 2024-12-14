@@ -482,3 +482,145 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- mysql create table pago
+CREATE TABLE `pago` (
+  `pago_id` int NOT NULL AUTO_INCREMENT,
+  `pago_colegiado` int NOT NULL,
+  `pago_fecha` datetime NOT NULL,
+  `pago_monto_total` decimal(10,2) NOT NULL,
+  `pago_nro_boletaventa` varchar(45) DEFAULT NULL,
+  `pago_recibo` varchar(45) DEFAULT NULL,
+  `pago_notas` varchar(45) DEFAULT NULL,
+  `pago_aporte` decimal(10,2) DEFAULT NULL,
+  `pago_otros` decimal(10,2) DEFAULT NULL,
+  `pago_usu_create` varchar(45) DEFAULT NULL,
+  `pago_fecha_create` datetime DEFAULT NULL,
+  `pago_usu_update` varchar(45) DEFAULT NULL,
+  `pago_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`pago_id`),
+  KEY `fk_pago_colegiado_idx` (`pago_colegiado`),
+  CONSTRAINT `fk_pago_colegiado` FOREIGN KEY (`pago_colegiado`) REFERENCES `colegiados` (`col_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `periodos` (
+  `period_id` int NOT NULL AUTO_INCREMENT,
+  `period_anio` int NOT NULL,
+  `period_cuota` decimal(10, 2) NOT NULL,
+  `period_desc` varchar(45) DEFAULT NULL,
+  `period_usu_create` varchar(45) DEFAULT NULL,
+  `period_fecha_create` datetime DEFAULT NULL,
+  `period_usu_update` varchar(45) DEFAULT NULL,
+  `period_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`period_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `aportaciones` (
+  `aport_id` int NOT NULL AUTO_INCREMENT,
+  `aport_colegiado` int NOT NULL,
+  `aport_pago` int NOT NULL,
+  `aport_periodo` int NOT NULL,
+  `aport_mes` int NOT NULL,
+  `aport_monto` decimal(10, 2) NOT NULL,
+  `aport_fecha` datetime NOT NULL,
+  `aport_usu_create` varchar(45) DEFAULT NULL,
+  `aport_fecha_create` datetime DEFAULT NULL,
+  `aport_usu_update` varchar(45) DEFAULT NULL,
+  `aport_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`aport_id`),
+  KEY `fk_aport_colegiado_idx` (`aport_colegiado`),
+  KEY `fk_aport_pago_idx` (`aport_pago`),
+  KEY `fk_aport_periodo_idx` (`aport_periodo`),
+  CONSTRAINT `fk_aport_colegiado` FOREIGN KEY (`aport_colegiado`) REFERENCES `colegiados` (`col_id`),
+  CONSTRAINT `fk_aport_pago` FOREIGN KEY (`aport_pago`) REFERENCES `pago` (`pago_id`),
+  CONSTRAINT `fk_aport_periodo` FOREIGN KEY (`aport_periodo`) REFERENCES `periodos` (`period_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `concepto` (
+  `conc_id` int NOT NULL AUTO_INCREMENT,
+  `conc_nombre` varchar(45) NOT NULL,
+  `conc_precio` decimal(10, 2) NOT NULL,
+  `conc_desc` varchar(45) DEFAULT NULL,
+  `conc_usu_create` varchar(45) DEFAULT NULL,
+  `conc_fecha_create` datetime DEFAULT NULL,
+  `conc_usu_update` varchar(45) DEFAULT NULL,
+  `conc_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`conc_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+CREATE TABLE `pago_otros` (
+  `pago_o_id` int NOT NULL AUTO_INCREMENT,
+  `pago_o_pago` int NOT NULL,
+  `pago_o_concepto` int NOT NULL,
+  `pago_o_desc` varchar(45) DEFAULT NULL,
+  `pago_o_importe` decimal(10, 2) NOT NULL,
+  `pago_o_usu_create` varchar(45) DEFAULT NULL,
+  `pago_o_fecha_create` datetime DEFAULT NULL,
+  `pago_o_usu_update` varchar(45) DEFAULT NULL,
+  `pago_o_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`pago_o_id`),
+  KEY `fk_pago_o_pago_idx` (`pago_o_pago`),
+  KEY `fk_pago_o_concepto_idx` (`pago_o_concepto`),
+  CONSTRAINT `fk_pago_o_concepto` FOREIGN KEY (`pago_o_concepto`) REFERENCES `concepto` (`conc_id`),
+  CONSTRAINT `fk_pago_o_pago` FOREIGN KEY (`pago_o_pago`) REFERENCES `pago` (`pago_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- web_id
+-- web_categoria
+-- web_titulo
+-- web_mini_desc
+-- web_desc
+-- web_img
+-- web_st
+-- web_usu_create
+-- web_fecha_create
+-- web_usu_update
+-- web_fecha_update
+--create table web
+CREATE TABLE `web` (
+  `web_id` int NOT NULL AUTO_INCREMENT,
+  `web_categoria` int NOT NULL,
+  `web_titulo` varchar(45) NOT NULL,
+  `web_mini_desc` varchar(45) DEFAULT NULL,
+  `web_desc` varchar(500) DEFAULT NULL,
+  `web_img` varchar(100) DEFAULT NULL,
+  `web_st` int DEFAULT NULL,
+  `web_usu_create` varchar(45) DEFAULT NULL,
+  `web_fecha_create` datetime DEFAULT NULL,
+  `web_usu_update` varchar(45) DEFAULT NULL,
+  `web_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`web_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
