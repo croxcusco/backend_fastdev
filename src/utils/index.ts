@@ -148,3 +148,10 @@ export const limpiarTexto = (input: any) => {
   return textoLimpio
 }
 // convertDateTime("2022-10-06T20:10:40.433Z")
+
+export function validateDate(dateString: any) {
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) || date.getFullYear() > 9999 || date.getFullYear() < 1000
+    ? null
+    : date;
+}

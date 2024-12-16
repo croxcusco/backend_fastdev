@@ -160,7 +160,7 @@ model aportaciones {
   aport_periodo      Int
   aport_mes          Int
   aport_monto        Decimal    @db.Decimal(10, 2)
-  aport_fecha        DateTime   @db.DateTime(0)
+  aport_fecha        DateTime?  @db.DateTime(0)
   aport_usu_create   String?    @db.VarChar(45)
   aport_fecha_create DateTime?  @db.DateTime(0)
   aport_usu_update   String?    @db.VarChar(45)
@@ -206,7 +206,7 @@ model pago_otros {
 model pago {
   pago_id              Int            @id @default(autoincrement())
   pago_colegiado       Int
-  pago_fecha           DateTime       @db.DateTime(0)
+  pago_fecha           DateTime?      @db.DateTime(0)
   pago_monto_total     Decimal        @db.Decimal(10, 2)
   pago_nro_boletaventa String?        @db.VarChar(45)
   pago_recibo          String?        @db.VarChar(45)
