@@ -1,19 +1,6 @@
-// model periodos {
-//     period_id           Int            @id @default(autoincrement())
-//     period_anio         Int
-//     period_cuota        Decimal        @db.Decimal(10, 2)
-//     period_desc         String?        @db.VarChar(45)
-//     period_usu_create   String?        @db.VarChar(45)
-//     period_fecha_create DateTime?      @db.DateTime(0)
-//     period_usu_update   String?        @db.VarChar(45)
-//     period_fecha_update DateTime?      @db.DateTime(0)
-//     aportaciones        aportaciones[]
-//   }
-
-
+import { DateResolver, DateTimeResolver, PositiveFloatResolver } from "graphql-scalars";
+import { Context } from "../../context";
 import { Decimal } from "@prisma/client/runtime/library";
-import { DateResolver, DateTimeResolver } from "graphql-scalars";
-import { context, Context } from "../../context";
 
 const typeDefs = `#graphql
     extend type Query {
@@ -50,6 +37,7 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
+    scalar Decimal
 `;
 
 interface periodo {
@@ -76,6 +64,7 @@ interface periodoForm {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
+    Decimal: PositiveFloatResolver,
     Query: {
         getAll_periodos: async (_parent: unknown, _args: unknown, context: Context): Promise<periodo[]> => {
             try {
@@ -166,18 +155,18 @@ const resolvers = {
             }
 
         },
-        periodos: {
-            aportaciones: async (_parent: periodo, _args: any, context: Context) => {
-                return await context.prisma.aportaciones.findMany({
-                    where: {
-                        aport_periodo: _parent.period_id
-                    }
-                })
-            }
+    },
+    periodos: {
+        aportaciones: async (_parent: periodo, _args: any, context: Context) => {
+            return await context.prisma.aportaciones.findMany({
+                where: {
+                    aport_periodo: _parent.period_id
+                }
+            })
         }
     }
 }
 
-export { typeDefs as periodosTypeDefs, resolvers as periodosResolvers}
+export { typeDefs as periodosTypeDefs, resolvers as periodosResolvers }
 
 

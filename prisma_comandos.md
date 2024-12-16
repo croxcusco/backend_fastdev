@@ -13,3 +13,21 @@ generar las interfaces deacuerdo al modelo de la base de datos
 para ejecutar el servidor:
 > npm run dev
 
+
+para ejecutar un pull de otra base de datos
+> npx prisma db pull --schema=prisma/schema1.prisma
+> 
+> npx prisma db pull --schema=prisma/schema2.prisma
+
+
+
+para ejecutar un generate de otra base de datos
+> npx prisma generate --schema=prisma/schema1.prisma
+> 
+> npx prisma generate --schema=prisma/schema2.prisma
+
+
+
+
+
+

@@ -1,18 +1,5 @@
-
-// model concepto {
-//     conc_id           Int          @id @default(autoincrement())
-//     conc_nombre       String       @db.VarChar(45)
-//     conc_precio       Decimal      @db.Decimal(10, 2)
-//     conc_desc         String?      @db.VarChar(45)
-//     conc_usu_create   String?      @db.VarChar(45)
-//     conc_fecha_create DateTime?    @db.DateTime(0)
-//     conc_usu_update   String?      @db.VarChar(45)
-//     conc_fecha_update DateTime?    @db.DateTime(0)
-//     pago_otros        pago_otros[]
-//   }
-
 import { Decimal } from "@prisma/client/runtime/library";
-import { DateResolver, DateTimeResolver } from "graphql-scalars";
+import { DateResolver, DateTimeResolver, PositiveFloatResolver } from "graphql-scalars";
 import { Context } from "../../context";
 
 const typeDefs = `#graphql
@@ -50,6 +37,7 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
+    scalar Decimal
 `
 
 interface concepto {
@@ -76,6 +64,7 @@ interface conceptoForm {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
+    Decimal: PositiveFloatResolver,
     Query: {
         getAll_concepto: async (
             _parent: unknown,

@@ -139,5 +139,12 @@ export const convertDateTimeV2 = (date: any) => {
   return fecha_formateada
 }
 
-
+export const limpiarTexto = (input: any) => {
+  let textoLimpio = input.replace(/<[^>]*>/g, '')
+  // Quitar caracteres de control como espacios en blanco y saltos de página
+  textoLimpio = textoLimpio.replace(/\n/g, '') // Remueve saltos de línea
+  textoLimpio = textoLimpio.replace(/&nbsp/g, '') // Remueve los caracteres &nbsp
+  textoLimpio = textoLimpio.normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remueve acentos
+  return textoLimpio
+}
 // convertDateTime("2022-10-06T20:10:40.433Z")

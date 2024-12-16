@@ -1,5 +1,5 @@
 
-import { DateResolver, DateTimeResolver } from "graphql-scalars";
+import { DateResolver, DateTimeResolver, PositiveFloatResolver } from "graphql-scalars";
 import { Context } from '../../context';
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -112,6 +112,7 @@ interface PagoPageFilter {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
+    Decimal: PositiveFloatResolver,
     Query: {
         getAll_pagos: async (
             _parent: unknown,
@@ -130,7 +131,7 @@ const resolvers = {
                         SELECT *
                         FROM pago p
                         inner join colegiados c on c.col_id=p.pago_colegiado
-                        inner join persona per on per.per_id=c.col_per_id
+                        inner join persona per on per.per_id=c.col_persona
                         where CONCAT(per.per_nombre, ' ', per.per_appat, ' ', per.per_apmat) LIKE ${`%${filter}%`}
                         ORDER BY p.pago_id DESC
                         LIMIT ${take + 1} OFFSET ${decodedCursor || 0}
@@ -147,7 +148,17 @@ const resolvers = {
                     }));
 
                     // Obtener el cursor final
-                    const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+                    const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : "";
+
+                    if (edges.length === 0) {
+                        return {
+                            edges: [],
+                            pageInfo: {
+                                hasNextPage: false,
+                                endCursor: "", // Devuelve una cadena vacía si no hay datos
+                            },
+                        };
+                    }
 
                     return {
                         edges,
@@ -163,8 +174,24 @@ const resolvers = {
             }
 
             const where = filter ? {
-                
-
+                OR: [
+                    {
+                        colegiados: {
+                            persona: {
+                                per_nro_doc: {
+                                    contains: filter
+                                }
+                            }
+                        }
+                    },
+                    {
+                        colegiados: {
+                            col_nro_cop: {
+                                contains: filter
+                            }
+                        }
+                    }
+                ]
             } : {}
 
             try {
@@ -186,7 +213,17 @@ const resolvers = {
                 }));
 
                 // Obtener el cursor final
-                const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+                const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : "";
+
+                if (edges.length === 0) {
+                    return {
+                        edges: [],
+                        pageInfo: {
+                            hasNextPage: false,
+                            endCursor: "", // Devuelve una cadena vacía si no hay datos
+                        },
+                    };
+                }
 
                 return {
                     edges,

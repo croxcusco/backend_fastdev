@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client1"
 }
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_SERVER")
+  url      = env("DATABASE_URL_SERVER1")
 }
 
 model colegiados {
@@ -12,9 +13,9 @@ model colegiados {
   col_persona           Int?
   col_nro_cop           String?        @db.VarChar(10)
   col_fecha_colegiatura DateTime?      @db.DateTime(0)
-  col_centro_trabajo    String?        @db.VarChar(45)
+  col_centro_trabajo    String?        @db.VarChar(250)
   col_st                String?        @db.VarChar(20)
-  col_obs               String?        @db.VarChar(45)
+  col_obs               String?        @db.MediumText
   col_foto              String?        @db.VarChar(200)
   col_fech_create       DateTime?      @db.DateTime(0)
   col_fech_update       DateTime?      @db.DateTime(0)
@@ -44,7 +45,7 @@ model persona {
   per_st           String?         @db.VarChar(20)
   per_telf         String?         @db.VarChar(45)
   per_celular1     String?         @db.VarChar(15)
-  per_celular2     String?         @db.VarChar(15)
+  per_celular2     String?         @db.VarChar(50)
   per_fech_create  DateTime?       @db.DateTime(0)
   per_fech_update  DateTime?       @db.DateTime(0)
   per_usu_create   String?         @db.VarChar(45)
@@ -209,7 +210,7 @@ model pago {
   pago_monto_total     Decimal        @db.Decimal(10, 2)
   pago_nro_boletaventa String?        @db.VarChar(45)
   pago_recibo          String?        @db.VarChar(45)
-  pago_notas           String?        @db.VarChar(45)
+  pago_notas           String?        @db.Text
   pago_aporte          Decimal?       @db.Decimal(10, 2)
   pago_otros           Decimal?       @db.Decimal(10, 2)
   pago_usu_create      String?        @db.VarChar(45)
@@ -237,12 +238,14 @@ model periodos {
 
 model web {
   web_id           Int       @id @default(autoincrement())
-  web_categoria    Int
-  web_titulo       String    @db.VarChar(45)
-  web_mini_desc    String?   @db.VarChar(45)
+  web_categoria    String    @db.VarChar(45)
+  web_titulo       String    @db.VarChar(100)
+  web_mini_desc    String?   @db.VarChar(100)
   web_desc         String?   @db.VarChar(500)
+  web_img_portada  String?   @db.VarChar(100)
   web_img          String?   @db.VarChar(100)
   web_st           Int?
+  web_portada      Int
   web_usu_create   String?   @db.VarChar(45)
   web_fecha_create DateTime? @db.DateTime(0)
   web_usu_update   String?   @db.VarChar(45)

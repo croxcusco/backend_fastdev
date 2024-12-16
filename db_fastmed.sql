@@ -586,10 +586,11 @@ CREATE TABLE `pago_otros` (
 --create table web
 CREATE TABLE `web` (
   `web_id` int NOT NULL AUTO_INCREMENT,
-  `web_categoria` int NOT NULL,
-  `web_titulo` varchar(45) NOT NULL,
-  `web_mini_desc` varchar(45) DEFAULT NULL,
+  `web_categoria` varchar(45) NOT NULL,
+  `web_titulo` varchar(100) NOT NULL,
+  `web_mini_desc` varchar(100) DEFAULT NULL,
   `web_desc` varchar(500) DEFAULT NULL,
+  `web_img_portada` varchar(100) DEFAULT NULL,
   `web_img` varchar(100) DEFAULT NULL,
   `web_st` int DEFAULT NULL,
   `web_usu_create` varchar(45) DEFAULT NULL,

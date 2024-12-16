@@ -1,11 +1,13 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient as PrismaClient1 } from '@prisma/client1';
+// import { PrismaClient as PrismaClient2 } from '@prisma/client2';
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { context } from "./context";
 import { typeDefs, resolvers } from './schema'
 import moment from "moment-timezone";
 
-const prisma = new PrismaClient()
+const prisma01 = new PrismaClient1()
+// const prisma02 = new PrismaClient2()
 
 async function startApolloServer() {
 
@@ -26,9 +28,11 @@ async function startApolloServer() {
 
 startApolloServer()
     .catch(async (e) => {
-        await prisma.$disconnect()
+        await prisma01.$disconnect()
+        // await prisma02.$disconnect()
         throw e
     })
     .finally(async () => {
-        await prisma.$disconnect()
+        await prisma01.$disconnect()
+        // await prisma02.$disconnect()
     })

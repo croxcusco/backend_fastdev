@@ -180,10 +180,15 @@ const resolvers = {
                 try {
                     // Consulta con cursor utilizando raw query
                     const personas = await context.prisma.$queryRaw<persona[]>`
-                        SELECT * 
-                        FROM persona
-                        WHERE CONCAT(per_nombre, ' ', per_appat, ' ', per_apmat) LIKE ${`%${filter}%`}
-                        ORDER BY per_id DESC
+                        SELECT p.* 
+                        FROM colegiados c
+                        inner join persona p on p.per_id = c.col_persona
+                        WHERE CONCAT(
+                            COALESCE(p.per_nombre, ''), ' ',
+                            COALESCE(p.per_appat, ''), ' ',
+                            COALESCE(p.per_apmat, '')
+                        ) LIKE ${`%${filter}%`}
+                        ORDER BY p.per_id DESC
                         LIMIT ${take + 1} OFFSET ${decodedCursor || 0}
                     `;
 
@@ -198,7 +203,17 @@ const resolvers = {
                     }));
 
                     // Obtener el cursor final
-                    const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+                    const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : "";
+
+                    if (edges.length === 0) {
+                        return {
+                            edges: [],
+                            pageInfo: {
+                                hasNextPage: false,
+                                endCursor: "", // Devuelve una cadena vacía si no hay datos
+                            },
+                        };
+                    }
 
                     return {
                         edges,
@@ -248,7 +263,17 @@ const resolvers = {
                 }));
 
                 // Obtener el cursor final
-                const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
+                const endCursor = edges.length > 0 ? edges[edges.length - 1].cursor : "";
+
+                if (edges.length === 0) {
+                    return {
+                        edges: [],
+                        pageInfo: {
+                            hasNextPage: false,
+                            endCursor: "", // Devuelve una cadena vacía si no hay datos
+                        },
+                    };
+                }
 
                 return {
                     edges,
