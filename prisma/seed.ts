@@ -6,47 +6,18 @@ import { limpiarTexto, validateDate } from '../src/utils'
 const prisma01 = new PrismaClient1()
 const prisma02 = new PrismaClient2()
 
-
-// model aportaciones {
-//     aport_id           Int        @id @default(autoincrement())
-//     aport_colegiado    Int
-//     aport_pago         Int
-//     aport_periodo      Int
-//     aport_mes          Int
-//     aport_monto        Decimal    @db.Decimal(10, 2)
-//     aport_fecha        DateTime   @db.DateTime(0)
-//     aport_usu_create   String?    @db.VarChar(45)
-//     aport_fecha_create DateTime?  @db.DateTime(0)
-//     aport_usu_update   String?    @db.VarChar(45)
-//     aport_fecha_update DateTime?  @db.DateTime(0)
-//     colegiados         colegiados @relation(fields: [aport_colegiado], references: [col_id], onUpdate: Restrict, map: "fk_aport_colegiado")
-//     pago               pago       @relation(fields: [aport_pago], references: [pago_id], onUpdate: Restrict, map: "fk_aport_pago")
-//     periodos           periodos   @relation(fields: [aport_periodo], references: [period_id], onUpdate: Restrict, map: "fk_aport_periodo")
-
-//     @@index([aport_colegiado], map: "fk_aport_colegiado_idx")
-//     @@index([aport_pago], map: "fk_aport_pago_idx")
-//     @@index([aport_periodo], map: "fk_aport_periodo_idx")
-//   }
-
-
-// model aportaciones {
-//     idAportacion   Int      @id @default(autoincrement())
-//     idColegiado    Int
-//     idPago         Int
-//     idPeriodo      Int
-//     mes            String   @db.VarChar(30)
-//     monto          Decimal  @db.Decimal(10, 2)
-//     fecha_aporte   DateTime @db.Date
-//     creado_por     Int
-//     creado_el      DateTime @default(now()) @db.Timestamp(0)
-//     actualizado_el DateTime @default(now()) @db.Timestamp(0)
-//   }
-
 async function main() {
     // const deletePeriodos = await prisma01.periodos.deleteMany()
     // console.log('Periodos eliminados: ', deletePeriodos)
     // const deleteConcepto = await prisma01.concepto.deleteMany()
     // console.log('Concepto eliminados: ', deleteConcepto)
+
+    const deleteAportaciones = await prisma01.aportaciones.deleteMany();
+    console.log('Aportaciones eliminadas: ', deleteAportaciones);
+    const deletePagoOtros = await prisma01.pago_otros.deleteMany();
+    console.log("Registros eliminados de pago_otros: ", deletePagoOtros);
+    const deletePago = await prisma01.pago.deleteMany()
+    console.log('Pago eliminados: ', deletePago)
 
 
     // const periodos = await prisma01.periodos.createMany({
@@ -62,14 +33,21 @@ async function main() {
     // //exportar colegiados
     // create_colegiado()
 
-    // // exportar pagos
-    // migratePagos().then(() => {
-    //     console.log('Migración de pagos completada')
-    // }).catch((error) => {
-    //     console.error('Error al migrar pagos:', error)
-    // })
+    // exportar pagos
+    await migratePagos().then(() => {
+        console.log('Migración de pagos completada')
+    }).catch((error) => {
+        console.error('Error al migrar pagos:', error)
+    })
 
-    migrateAportaciones().then(() => {
+    await migrateAportaciones().then(() => {
+        console.log('Migración de aportaciones completada')
+    }).catch((error) => {
+        console.error('Error al migrar aportaciones:', error)
+    })
+
+
+    await migratePagoOtros().then(() => {
         console.log('Migración de aportaciones completada')
     }).catch((error) => {
         console.error('Error al migrar aportaciones:', error)
@@ -95,8 +73,8 @@ main()
     })
 
 async function migratePagos() {
-    const BATCH_SIZE = 100; // Número de registros por lote
-    let lastMigratedId = 9600; // Último ID migrado
+    const BATCH_SIZE = 1000; // Número de registros por lote
+    let lastMigratedId = 0; // Último ID migrado
     let hasMore = true; // Control del ciclo
 
     const deletePago = await prisma01.pago.deleteMany()
@@ -155,8 +133,8 @@ async function migratePagos() {
 }
 
 async function migrateAportaciones() {
-    const BATCH_SIZE = 300; // Número de registros por lote
-    let lastMigratedId = 59189; // Último ID migrado
+    const BATCH_SIZE = 1000; // Número de registros por lote
+    let lastMigratedId = 1; // Último ID migrado
     let hasMore = true; // Control del ciclo
 
     // const deleteAportaciones = await prisma01.aportaciones.deleteMany();
@@ -222,6 +200,62 @@ async function migrateAportaciones() {
     console.log('Migración completa.');
 }
 
+async function migratePagoOtros() {
+    const BATCH_SIZE = 1000; // Número de registros por lote
+    let lastMigratedId = 0; // Último ID migrado
+    let hasMore = true; // Control del ciclo
+
+    const deletePagoOtros = await prisma01.pago_otros.deleteMany();
+    console.log("Registros eliminados de pago_otros: ", deletePagoOtros);
+
+    while (hasMore) {
+        // Obtener un lote de datos de la tabla origen
+        const pagosItemsCli2 = await prisma02.pagositems.findMany({
+            where: { idDetalle: { gt: lastMigratedId } },
+            take: BATCH_SIZE,
+            orderBy: { idDetalle: "asc" },
+        });
+
+        hasMore = pagosItemsCli2.length > 0;
+
+        if (pagosItemsCli2.length === 0) break;
+
+        // Validar la existencia de IDs relacionados en las tablas destino
+        const idsPagosLote = pagosItemsCli2.map((item) => item.idPago);
+
+        const pagosValidos = new Set(
+            (await prisma01.pago.findMany({
+                where: { pago_id: { in: idsPagosLote } },
+                select: { pago_id: true },
+            })).map((pago) => pago.pago_id)
+        );
+
+        // Preparar los datos filtrados y mapeados para la migración
+        const pagoOtrosData = pagosItemsCli2
+            .filter((item) => pagosValidos.has(item.idPago))
+            .map((item) => ({
+                pago_o_pago: item.idPago,
+                pago_o_concepto: item.idConcepto,
+                pago_o_desc: item.descripcion || null,
+                pago_o_importe: item.importe,
+                pago_o_usu_create: "admin",
+                pago_o_fecha_create: item.creado_el,
+            }));
+
+        // Insertar datos en la tabla destino
+        await prisma01.pago_otros.createMany({
+            data: pagoOtrosData,
+        });
+
+        // Actualizar el último ID migrado
+        lastMigratedId = pagosItemsCli2[pagosItemsCli2.length - 1].idDetalle;
+
+        console.log(
+            `Migrados ${pagoOtrosData.length} registros, último ID procesado: ${lastMigratedId}`
+        );
+    }
+    console.log("Migración de pago_otros completa.");
+}
 
 async function create_colegiado() {
 
