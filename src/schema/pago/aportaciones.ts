@@ -1,4 +1,4 @@
-import { DateResolver, DateTimeResolver, PositiveFloatResolver } from "graphql-scalars";
+import { DateResolver, DateTimeResolver } from "graphql-scalars";
 import { Context } from "../../context";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -46,7 +46,7 @@ interface aportaciones {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
-    Decimal: PositiveFloatResolver,
+    // Decimal: ,
     Query: {
         getOne_aportaciones: async (_parent: unknown, { aport_id }: { aport_id: number }, context: Context): Promise<aportaciones | null> => {
             return await context.prisma.aportaciones.findUnique({

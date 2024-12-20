@@ -1,5 +1,5 @@
 
-import { DateResolver, DateTimeResolver, PositiveFloatResolver } from "graphql-scalars";
+import { DateResolver, DateTimeResolver } from "graphql-scalars";
 import { Context } from '../../context';
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -65,6 +65,7 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
+    scalar Decimal
 `
 
 interface pago {
@@ -112,7 +113,7 @@ interface PagoPageFilter {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
-    Decimal: PositiveFloatResolver,
+    // Decimal: NonNegativeFloatResolver,
     Query: {
         getAll_pagos: async (
             _parent: unknown,
