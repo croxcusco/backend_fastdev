@@ -143,7 +143,7 @@ const resolvers = {
                 if (hasNextPage) webs.pop(); // Quitar el registro extra
 
                 // Crear edges con nodos y cursores
-                const edges = webs.map((web) => ({
+                const edges = webs.map((web:any) => ({
                     node: web,
                     cursor: Buffer.from(web.web_id.toString()).toString('base64'),
                 }));

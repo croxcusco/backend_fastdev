@@ -143,7 +143,7 @@ const resolvers = {
                     if (hasNextPage) pagos.pop(); // Quitar el registro extra
 
                     // Crear edges con nodos y cursores
-                    const edges = pagos.map((pago) => ({
+                    const edges = pagos.map((pago:pago) => ({
                         node: pago,
                         cursor: Buffer.from(pago.pago_id.toString()).toString('base64'),
                     }));
@@ -208,7 +208,7 @@ const resolvers = {
                 if (hasNextPage) pagos.pop(); // Quitar el registro extra
 
                 // Crear edges con nodos y cursores
-                const edges = pagos.map((pago) => ({
+                const edges = pagos.map((pago:pago) => ({
                     node: pago,
                     cursor: Buffer.from(pago.pago_id.toString()).toString('base64'),
                 }));

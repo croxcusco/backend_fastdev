@@ -197,7 +197,7 @@ const resolvers = {
                     if (hasNextPage) personas.pop(); // Quitar el registro extra
 
                     // Crear edges con nodos y cursores
-                    const edges = personas.map((persona) => ({
+                    const edges = personas.map((persona: persona) => ({
                         node: persona,
                         cursor: Buffer.from(persona.per_id.toString()).toString('base64'),
                     }));
@@ -257,7 +257,7 @@ const resolvers = {
                 if (hasNextPage) personas.pop(); // Quitar el registro extra
 
                 // Crear edges con nodos y cursores
-                const edges = personas.map((persona) => ({
+                const edges = personas.map((persona:any) => ({
                     node: persona,
                     cursor: Buffer.from(persona.per_id.toString()).toString('base64'),
                 }));
