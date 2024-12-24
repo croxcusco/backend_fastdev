@@ -7,8 +7,12 @@ WORKDIR /app
 # Copia el archivo de dependencias
 COPY package*.json ./
 
-# Instala las dependencias
-RUN npm install
+# Copia los archivos de esquema de Prisma
+COPY prisma/schema1.prisma ./prisma/
+COPY prisma/schema2.prisma ./prisma/
+
+# Instala las dependencias y actualiza los tipos
+RUN npm install --legacy-peer-deps && npx prisma generate --schema=./prisma/schema1.prisma && npx prisma generate --schema=./prisma/schema2.prisma && npm update @types/node
 
 # Copia el resto del proyecto
 COPY . .
@@ -20,4 +24,4 @@ RUN npm run build
 EXPOSE 4000
 
 # Comando para iniciar el servidor
-CMD ["npm", "start"]
+CMD ["node", "build/server.js"]
