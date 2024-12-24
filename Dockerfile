@@ -12,9 +12,6 @@ COPY prisma/schema.prisma ./prisma/
 # COPY prisma/schema1.prisma ./prisma/
 # COPY prisma/schema2.prisma ./prisma/
 
-# Copiar archivo .env
-COPY .env .env
-
 # Instala las dependencias y actualiza los tipos
 RUN npm install && npx prisma generate && npm update @types/node
 
