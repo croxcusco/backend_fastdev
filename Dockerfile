@@ -1,5 +1,5 @@
 # Usa la imagen base de Node.js
-FROM node:18-alpine
+FROM node:23.5.0-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -8,11 +8,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Copia los archivos de esquema de Prisma
-COPY prisma/schema1.prisma ./prisma/
-COPY prisma/schema2.prisma ./prisma/
+COPY prisma/schema.prisma ./prisma/
+# COPY prisma/schema1.prisma ./prisma/
+# COPY prisma/schema2.prisma ./prisma/
 
 # Instala las dependencias y actualiza los tipos
-RUN npm install --legacy-peer-deps && npx prisma generate --schema=./prisma/schema1.prisma && npx prisma generate --schema=./prisma/schema2.prisma && npm update @types/node
+RUN npm install && npx prisma generate && npm update @types/node
 
 # Copia el resto del proyecto
 COPY . .
