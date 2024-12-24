@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Copia los archivos de esquema de Prisma
-COPY prisma/schema.prisma prisma/
+COPY prisma/schema.prisma ./prisma/
 # COPY prisma/schema1.prisma ./prisma/
 # COPY prisma/schema2.prisma ./prisma/
 
