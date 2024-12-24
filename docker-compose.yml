@@ -1,0 +1,45 @@
+# version: '3.8'
+
+# services:
+#   app:
+#     image: node:18.20-alpine
+#     working_dir: /app
+#     volumes:
+#       - .:/app
+#       - /app/node_modules
+#     ports:
+#       - "2002:2002"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db1
+#       - db2
+#     command: sh -c "npm install && npm run dev"
+
+#   db1:
+#     image: mysql:5.7
+#     environment:
+#       MYSQL_ROOT_PASSWORD: rootpassword
+#       MYSQL_DATABASE: u200603_colegiados
+#       MYSQL_USER: user
+#       MYSQL_PASSWORD: password
+#     ports:
+#       - "3306:3306"
+#     volumes:
+#       - db1_data:/var/lib/mysql
+
+#   db2:
+#     image: mysql:5.7
+#     environment:
+#       MYSQL_ROOT_PASSWORD: rootpassword
+#       MYSQL_DATABASE: u200603_croxcusco
+#       MYSQL_USER: user
+#       MYSQL_PASSWORD: password
+#     ports:
+#       - "3307:3306"
+#     volumes:
+#       - db2_data:/var/lib/mysql
+
+# volumes:
+#   db1_data:
+#   db2_data:
