@@ -20,7 +20,7 @@ async function startApolloServer() {
     const { url } = await startStandaloneServer(server, {
         context: context,
         listen: {
-            port: parseInt(process.env.PORT || '2002'),
+            port: parseInt(process.env.PORT || '4000'),
         },
     });
     moment.tz.setDefault('America/Lima')

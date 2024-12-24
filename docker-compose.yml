@@ -9,3 +9,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - PORT=${PORT}
+      - DATABASE_URL_SERVER1=${DATABASE_URL_SERVER1}
+      - DATABASE_URL_SERVER2=${DATABASE_URL_SERVER2}
+      - JWT_SECRET=${JWT_SECRET}
