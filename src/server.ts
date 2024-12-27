@@ -23,8 +23,12 @@ async function startApolloServer() {
             port: parseInt(process.env.PORT || '4000'),
         },
     });
-    moment.tz.setDefault('America/Lima')
-    console.log(`🚀 Servidor corriendo en: ${url}`)
+
+    // Configurar la zona horaria
+    const timezone = process.env.TIMEZONE || 'America/Lima';
+    moment.tz.setDefault(timezone);
+
+    console.log(`🚀 Servidor corriendo en: ${url} en la zona horaria ${timezone}`)
 }
 
 startApolloServer()
