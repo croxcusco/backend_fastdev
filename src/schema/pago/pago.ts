@@ -1,9 +1,10 @@
 import { DateResolver, DateTimeResolver } from "graphql-scalars";
 import { Context } from '../../context';
+import { Prisma } from "@prisma/client";
 
 const typeDefs = `#graphql
     extend type Query {
-        getAll_pagos(first: Int, after: Int, filter: String): PagosConnection
+        getAll_pagos(first: Int, after: String, filter: String): PagosConnection
         getOne_pago(pago_id: Int!): pago
     }
 
@@ -121,15 +122,19 @@ const resolvers = {
             const convertido = Number(filter);
 
             if (typeof filter === 'string' && isNaN(convertido)) {
-                
+
                 try {
                     // Consulta con cursor utilizando raw query
                     const pagos = await context.prisma.$queryRaw<pago[]>`
-                        SELECT *
+                        SELECT p.*
                         FROM pago p
                         inner join colegiados c on c.col_id=p.pago_colegiado
                         inner join persona per on per.per_id=c.col_persona
-                        where CONCAT(per.per_nombre, ' ', per.per_appat, ' ', per.per_apmat) LIKE ${`%${filter}%`}
+                        where CONCAT(
+                            COALESCE(per.per_nombre, ''), ' ',
+                            COALESCE(per.per_appat, ''), ' ',
+                            COALESCE(per.per_apmat, '')
+                        ) LIKE ${`%${filter}%`} or p.pago_nro_boletaventa LIKE ${`%${filter}%`}
                         ORDER BY p.pago_id DESC
                         LIMIT ${take + 1} OFFSET ${decodedCursor || 0}
                     `;
@@ -175,26 +180,22 @@ const resolvers = {
                 }
             }
 
-            const where = filter ? {
+            const where: Prisma.pagoWhereInput = filter ? {
                 OR: [
                     {
                         colegiados: {
                             persona: {
-                                per_nro_doc: {
-                                    contains: filter
-                                }
+                                per_nro_doc: { contains: filter }
                             }
                         }
                     },
                     {
                         colegiados: {
-                            col_nro_cop: {
-                                contains: filter
-                            }
+                            col_nro_cop: { contains: filter }
                         }
-                    }
+                    },
                 ]
-            } : {}
+            } : {};
 
             try {
                 const pagos = await context.prisma.pago.findMany({
