@@ -1,7 +1,5 @@
-
 import { DateResolver, DateTimeResolver } from "graphql-scalars";
 import { Context } from '../../context';
-import { Decimal } from "@prisma/client/runtime/library";
 
 const typeDefs = `#graphql
     extend type Query {
@@ -18,12 +16,12 @@ const typeDefs = `#graphql
         pago_id:              Int
         pago_colegiado:       Int
         pago_fecha:           DateTime
-        pago_monto_total:     Decimal
+        pago_monto_total:     Float
         pago_nro_boletaventa: String
         pago_recibo:          String
         pago_notas:           String
-        pago_aporte:          Decimal
-        pago_otros:           Decimal
+        pago_aporte:          Float
+        pago_otros:           Float
         pago_usu_create:      String
         pago_fecha_create:    DateTime
         pago_usu_update:      String
@@ -51,12 +49,12 @@ const typeDefs = `#graphql
     input formPago {
         pago_colegiado:       Int
         pago_fecha:           DateTime
-        pago_monto_total:     Decimal
+        pago_monto_total:     Float
         pago_nro_boletaventa: String
         pago_recibo:          String
         pago_notas:           String
-        pago_aporte:          Decimal
-        pago_otros:           Decimal
+        pago_aporte:          Float
+        pago_otros:           Float
         pago_usu_create:      String
         pago_fecha_create:    DateTime
         pago_usu_update:      String
@@ -65,19 +63,18 @@ const typeDefs = `#graphql
 
     scalar DateTime
     scalar Date
-    scalar Decimal
 `
 
 interface pago {
     pago_id: number;
     pago_colegiado: number;
     pago_fecha: Date | null;
-    pago_monto_total: Decimal | null;
+    pago_monto_total: number | null;
     pago_nro_boletaventa: string | null;
     pago_recibo: string | null;
     pago_notas: string | null;
-    pago_aporte: Decimal | null;
-    pago_otros: Decimal | null;
+    pago_aporte: number | null;
+    pago_otros: number | null;
     pago_usu_create: string | null;
     pago_fecha_create: Date | null;
     pago_usu_update: string | null;
@@ -87,12 +84,12 @@ interface pago {
 interface formPago {
     pago_colegiado: number;
     pago_fecha: Date;
-    pago_monto_total: Decimal;
+    pago_monto_total: number;
     pago_nro_boletaventa: string;
     pago_recibo: string;
     pago_notas: string;
-    pago_aporte: Decimal;
-    pago_otros: Decimal;
+    pago_aporte: number;
+    pago_otros: number;
     pago_usu_create: string;
     pago_fecha_create: Date;
     pago_usu_update: string;
@@ -113,7 +110,6 @@ interface PagoPageFilter {
 const resolvers = {
     Date: DateResolver,
     DateTime: DateTimeResolver,
-    // Decimal: NonNegativeFloatResolver,
     Query: {
         getAll_pagos: async (
             _parent: unknown,
@@ -125,7 +121,7 @@ const resolvers = {
             const convertido = Number(filter);
 
             if (typeof filter === 'string' && isNaN(convertido)) {
-                //
+                
                 try {
                     // Consulta con cursor utilizando raw query
                     const pagos = await context.prisma.$queryRaw<pago[]>`
@@ -143,8 +139,13 @@ const resolvers = {
                     if (hasNextPage) pagos.pop(); // Quitar el registro extra
 
                     // Crear edges con nodos y cursores
-                    const edges = pagos.map((pago:pago) => ({
-                        node: pago,
+                    const edges = pagos.map((pago) => ({
+                        node: {
+                            ...pago,
+                            pago_monto_total: Number(pago.pago_monto_total),
+                            pago_aporte: Number(pago.pago_aporte),
+                            pago_otros: Number(pago.pago_otros)
+                        },
                         cursor: Buffer.from(pago.pago_id.toString()).toString('base64'),
                     }));
 
@@ -208,8 +209,13 @@ const resolvers = {
                 if (hasNextPage) pagos.pop(); // Quitar el registro extra
 
                 // Crear edges con nodos y cursores
-                const edges = pagos.map((pago:pago) => ({
-                    node: pago,
+                const edges = pagos.map((pago) => ({
+                    node: {
+                        ...pago,
+                        pago_monto_total: Number(pago.pago_monto_total),
+                        pago_aporte: Number(pago.pago_aporte),
+                        pago_otros: Number(pago.pago_otros)
+                    },
                     cursor: Buffer.from(pago.pago_id.toString()).toString('base64'),
                 }));
 

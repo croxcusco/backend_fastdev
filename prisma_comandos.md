@@ -28,6 +28,13 @@ para ejecutar un generate de otra base de datos
 
 
 
+## Docker iniciar comandos
+
+para iniciar un nuevo proyecto
+>
+> docker-compose up -d --build
 
 
+Para detener los contenedores, puedes usar:
 
+> docker-compose down

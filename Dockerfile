@@ -13,7 +13,7 @@ COPY prisma/schema.prisma ./prisma/
 # COPY prisma/schema2.prisma ./prisma/
 
 # Instala las dependencias y actualiza los tipos
-RUN npm install && npx prisma generate && npm update @types/node
+RUN npm install && npx prisma generate
 
 # Copia el resto del proyecto
 COPY . .
