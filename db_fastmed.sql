@@ -572,33 +572,55 @@ CREATE TABLE `pago_otros` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- web_id
--- web_categoria
--- web_titulo
--- web_mini_desc
--- web_desc
--- web_img
--- web_st
--- web_usu_create
--- web_fecha_create
--- web_usu_update
--- web_fecha_update
+
+
+--create table web_categoria
+CREATE TABLE `web_categoria` (
+  `cat_id` int NOT NULL AUTO_INCREMENT,
+  `cat_nombre` varchar(45) NOT NULL,
+  `cat_st` int DEFAULT NULL,
+  `cat_usu_create` varchar(45) DEFAULT NULL,
+  `cat_fecha_create` datetime DEFAULT NULL,
+  `cat_usu_update` varchar(45) DEFAULT NULL,
+  `cat_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`cat_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 --create table web
 CREATE TABLE `web` (
   `web_id` int NOT NULL AUTO_INCREMENT,
-  `web_categoria` varchar(45) NOT NULL,
-  `web_titulo` varchar(100) NOT NULL,
-  `web_mini_desc` varchar(100) DEFAULT NULL,
-  `web_desc` varchar(500) DEFAULT NULL,
-  `web_img_portada` varchar(100) DEFAULT NULL,
-  `web_img` varchar(100) DEFAULT NULL,
+  `web_categoria` int NOT NULL,
+  `web_titulo` varchar(45) NOT NULL,
+  `web_mini_desc` varchar(45) NOT NULL,
+  `web_desc` varchar(500) NOT NULL,
+  `web_img` varchar(2048) NOT NULL,
   `web_st` int DEFAULT NULL,
   `web_usu_create` varchar(45) DEFAULT NULL,
   `web_fecha_create` datetime DEFAULT NULL,
   `web_usu_update` varchar(45) DEFAULT NULL,
   `web_fecha_update` datetime DEFAULT NULL,
-  PRIMARY KEY (`web_id`)
+  PRIMARY KEY (`web_id`),
+  KEY `fk_web_categoria_idx` (`web_categoria`),
+  CONSTRAINT `fk_web_categoria` FOREIGN KEY (`web_categoria`) REFERENCES `web_categoria` (`cat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--create table web_galeria
+CREATE TABLE `web_galeria` (
+  `gal_id` int NOT NULL AUTO_INCREMENT,
+  `gal_web` int NOT NULL,
+  `gal_img` varchar(2048) NOT NULL,
+  `gal_st` int DEFAULT NULL,
+  `gal_usu_create` varchar(45) DEFAULT NULL,
+  `gal_fecha_create` datetime DEFAULT NULL,
+  `gal_usu_update` varchar(45) DEFAULT NULL,
+  `gal_fecha_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`gal_id`),
+  KEY `fk_gal_web_idx` (`gal_web`),
+  CONSTRAINT `fk_gal_web` FOREIGN KEY (`gal_web`) REFERENCES `web` (`web_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 
 

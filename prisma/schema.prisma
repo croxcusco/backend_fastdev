@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../node_modules/@prisma/client1"
 }
 
 datasource db {
@@ -237,17 +236,44 @@ model periodos {
 }
 
 model web {
-  web_id           Int       @id @default(autoincrement())
-  web_categoria    String    @db.VarChar(45)
-  web_titulo       String    @db.VarChar(100)
-  web_mini_desc    String?   @db.VarChar(100)
-  web_desc         String?   @db.VarChar(500)
-  web_img_portada  String?   @db.VarChar(100)
-  web_img          String?   @db.VarChar(100)
-  web_st           Int?
-  web_portada      Int
-  web_usu_create   String?   @db.VarChar(45)
-  web_fecha_create DateTime? @db.DateTime(0)
-  web_usu_update   String?   @db.VarChar(45)
-  web_fecha_update DateTime? @db.DateTime(0)
+  web_id                                         Int           @id @default(autoincrement())
+  web_categoria                                  Int
+  web_titulo                                     String        @db.VarChar(45)
+  web_mini_desc                                  String        @db.VarChar(45)
+  web_desc                                       String        @db.VarChar(500)
+  web_img                                        String        @db.VarChar(2048)
+  web_st                                         Int?
+  web_usu_create                                 String?       @db.VarChar(45)
+  web_fecha_create                               DateTime?     @db.DateTime(0)
+  web_usu_update                                 String?       @db.VarChar(45)
+  web_fecha_update                               DateTime?     @db.DateTime(0)
+  web_categoria_web_web_categoriaToweb_categoria web_categoria @relation("web_web_categoriaToweb_categoria", fields: [web_categoria], references: [cat_id], onUpdate: Restrict, map: "fk_web_categoria")
+  web_galeria                                    web_galeria[]
+
+  @@index([web_categoria], map: "fk_web_categoria_idx")
+}
+
+model web_categoria {
+  cat_id                               Int       @id @default(autoincrement())
+  cat_nombre                           String    @db.VarChar(45)
+  cat_st                               Int?
+  cat_usu_create                       String?   @db.VarChar(45)
+  cat_fecha_create                     DateTime? @db.DateTime(0)
+  cat_usu_update                       String?   @db.VarChar(45)
+  cat_fecha_update                     DateTime? @db.DateTime(0)
+  web_web_web_categoriaToweb_categoria web[]     @relation("web_web_categoriaToweb_categoria")
+}
+
+model web_galeria {
+  gal_id           Int       @id @default(autoincrement())
+  gal_web          Int
+  gal_img          String    @db.VarChar(2048)
+  gal_st           Int?
+  gal_usu_create   String?   @db.VarChar(45)
+  gal_fecha_create DateTime? @db.DateTime(0)
+  gal_usu_update   String?   @db.VarChar(45)
+  gal_fecha_update DateTime? @db.DateTime(0)
+  web              web       @relation(fields: [gal_web], references: [web_id], onUpdate: Restrict, map: "fk_gal_web")
+
+  @@index([gal_web], map: "fk_gal_web_idx")
 }

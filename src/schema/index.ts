@@ -13,6 +13,8 @@ import { personaResolvers, personaTypeDefs, tipo_documento_resolver, tipo_docume
 //system
 import { sys_controlResolvers, sys_controlTypeDefs, sys_dperfilResolv, sys_dperfilTipeDef, sys_empresaResolver, sys_empresaSchema, sys_menuResolv, sys_menuTipeDef, sys_perfilResolvers, sys_perfilSchema, sys_sedeResolvers, sys_sedeTypeDefs, sys_submenuResolv, sys_submenuTipeDef, sys_usuarioResolvers, sys_usuarioTypeDefs } from "./system"
 import { webResolvers, webTypeDefs } from "./web/web"
+import { web_categoriaResolvers, web_categoriaTypeDefs } from "./web/web_categoria"
+import { webGaleriaResolvers, webGaleriaTypeDefs } from "./web/web_galeria"
 
 //laboratorio
 
@@ -43,6 +45,8 @@ const resolvers = [
     conceptoResolvers,
     pago_otrosResolvers,
     webResolvers,
+    web_categoriaResolvers,
+    webGaleriaResolvers,
 ]
 const typeDefs = [
     rootTypeDefs,
@@ -63,6 +67,8 @@ const typeDefs = [
     conceptoTypeDefs,
     pago_otrosTypeDefs,
     webTypeDefs,
+    web_categoriaTypeDefs,
+    webGaleriaTypeDefs,
 ]
 
 export { typeDefs, resolvers }

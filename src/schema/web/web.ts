@@ -1,19 +1,20 @@
 // model web {
-//     web_id           Int       @id @default(autoincrement())
-//     web_categoria    String    @db.VarChar(45)
-//     web_titulo       String    @db.VarChar(100)
-//     web_mini_desc    String?   @db.VarChar(100)
-//     web_desc         String?   @db.VarChar(500)
-//     web_img_portada  String?   @db.VarChar(100)
-//     web_img          String?   @db.VarChar(100)
-//     web_st           Int?
-//     web_portada      Int
-//     web_usu_create   String?   @db.VarChar(45)
-//     web_fecha_create DateTime? @db.DateTime(0)
-//     web_usu_update   String?   @db.VarChar(45)
-//     web_fecha_update DateTime? @db.DateTime(0)
+//     web_id                                         Int           @id @default(autoincrement())
+//     web_categoria                                  Int
+//     web_titulo                                     String        @db.VarChar(45)
+//     web_mini_desc                                  String        @db.VarChar(45)
+//     web_desc                                       String        @db.VarChar(500)
+//     web_img                                        String        @db.VarChar(2048)
+//     web_st                                         Int?
+//     web_usu_create                                 String?       @db.VarChar(45)
+//     web_fecha_create                               DateTime?     @db.DateTime(0)
+//     web_usu_update                                 String?       @db.VarChar(45)
+//     web_fecha_update                               DateTime?     @db.DateTime(0)
+//     web_categoria_web_web_categoriaToweb_categoria web_categoria @relation("web_web_categoriaToweb_categoria", fields: [web_categoria], references: [cat_id], onUpdate: Restrict, map: "fk_web_categoria")
+//     web_galeria                                    web_galeria[]
+  
+//     @@index([web_categoria], map: "fk_web_categoria_idx")
 //   }
-
 import { DateResolver, DateTimeResolver } from 'graphql-scalars';
 import { Context } from '../../context';
 
@@ -30,18 +31,18 @@ const typeDefs = `#graphql
 
     type web {
         web_id: Int!
-        web_categoria: String!
+        web_categoria: Int!
         web_titulo: String!
-        web_mini_desc: String
-        web_desc: String
-        web_img_portada: String
-        web_img: String
+        web_mini_desc: String!
+        web_desc: String!
+        web_img: String!
         web_st: Int
-        web_portada: Int
         web_usu_create: String
         web_fecha_create: DateTime
         web_usu_update: String
         web_fecha_update: DateTime
+        tabweb_categoria: web_categoria
+        web_galeria: [web_galeria]
     }
 
     type webConnection {
@@ -60,14 +61,16 @@ const typeDefs = `#graphql
     }
 
     input webForm {
-        web_categoria: String!
+        web_categoria: Int!
         web_titulo: String!
-        web_mini_desc: String
-        web_desc: String
-        web_img_portada: String
-        web_img: String
+        web_mini_desc: String!
+        web_desc: String!
+        web_img: String!
         web_st: Int
-        web_portada: Int
+        web_usu_create: String
+        web_fecha_create: DateTime
+        web_usu_update: String
+        web_fecha_update: DateTime
     }
     
     scalar DateTime
@@ -76,30 +79,30 @@ const typeDefs = `#graphql
 `
 
 interface web {
-    web_id: number
-    web_categoria: string
-    web_titulo: string
-    web_mini_desc: string
-    web_desc: string
-    web_img_portada: string
-    web_img: string
-    web_st: number
-    web_portada: number
-    web_usu_create: string
-    web_fecha_create: Date
-    web_usu_update: string
-    web_fecha_update: Date
+    web_id: number;
+    web_categoria: number;
+    web_titulo: string;
+    web_mini_desc: string;
+    web_desc: string;
+    web_img: string;
+    web_st: number | null;
+    web_usu_create: string | null;
+    web_fecha_create: Date | null;
+    web_usu_update: string | null;
+    web_fecha_update: Date | null;
 }
 
 interface formWeb {
-    web_categoria: string
-    web_titulo: string
-    web_mini_desc: string
-    web_desc: string
-    web_img_portada: string
-    web_img: string
-    web_st: number
-    web_portada: number
+    web_categoria: number;
+    web_titulo: string;
+    web_mini_desc: string;
+    web_desc: string;
+    web_img: string;
+    web_st: number | null;
+    web_usu_create: string | null;
+    web_fecha_create: Date | null;
+    web_usu_update: string | null;
+    web_fecha_update: Date | null;
 }
 
 interface webConnection {
@@ -177,6 +180,55 @@ const resolvers = {
             } catch (error) {
                 throw new Error(`Registro no encontrado ${error}`)
             }
+        }
+    },
+    Mutation: {
+        create_web: async (_parent: unknown, { web }: { web: formWeb }, context: Context): Promise<web> => {
+            try {
+                const newWeb = await context.prisma.web.create({
+                    data: web
+                })
+                return newWeb
+            } catch (error) {
+                console.error('Error al crear web:', error);
+                throw new Error('Error al crear web');
+            }
+        },
+        update_web: async (_parent: unknown, { web_id, fieldName, value }: { web_id: number, fieldName: string, value: string }, context: Context): Promise<web> => {
+            try {
+                const updatedWeb = await context.prisma.web.update({
+                    where: { web_id },
+                    data: { [fieldName]: value }
+                })
+                return updatedWeb
+            } catch (error) {
+                console.error('Error al actualizar web:', error);
+                throw new Error('Error al actualizar web');
+            }
+        }
+    },
+    web: {
+        tabweb_categoria: async (
+            parent: web,
+            _args: unknown,
+            context: Context
+        ) => {
+            return await context.prisma.web_categoria.findUnique({
+                where: {
+                    cat_id: parent.web_categoria
+                }
+            });
+        },
+        web_galeria: async (
+            parent: web,
+            _args: unknown,
+            context: Context
+        ) => {
+            return await context.prisma.web_galeria.findMany({
+                where: {
+                    gal_web: parent.web_id
+                }
+            });
         }
     }
 }
