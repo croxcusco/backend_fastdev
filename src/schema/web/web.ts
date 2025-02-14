@@ -12,11 +12,12 @@
 //     web_fecha_update                               DateTime?     @db.DateTime(0)
 //     web_categoria_web_web_categoriaToweb_categoria web_categoria @relation("web_web_categoriaToweb_categoria", fields: [web_categoria], references: [cat_id], onUpdate: Restrict, map: "fk_web_categoria")
 //     web_galeria                                    web_galeria[]
-  
+
 //     @@index([web_categoria], map: "fk_web_categoria_idx")
 //   }
 import { DateResolver, DateTimeResolver } from 'graphql-scalars';
 import { Context } from '../../context';
+import { v2 as cloudinary } from 'cloudinary';
 
 const typeDefs = `#graphql
     extend type Query {
@@ -75,7 +76,6 @@ const typeDefs = `#graphql
     
     scalar DateTime
     scalar Date
-    scalar Decimal
 `
 
 interface web {
@@ -126,7 +126,7 @@ const resolvers = {
             context: Context
         ): Promise<webConnection> => {
             const take = Math.min(first, 100);
-             // Límite máximo de registros
+            // Límite máximo de registros
             const decodedCursor = after ? parseInt(Buffer.from(after, 'base64').toString('ascii')) : null;
 
             try {
@@ -146,7 +146,7 @@ const resolvers = {
                 if (hasNextPage) webs.pop(); // Quitar el registro extra
 
                 // Crear edges con nodos y cursores
-                const edges = webs.map((web:any) => ({
+                const edges = webs.map((web: any) => ({
                     node: web,
                     cursor: Buffer.from(web.web_id.toString()).toString('base64'),
                 }));
@@ -160,7 +160,7 @@ const resolvers = {
                         hasNextPage,
                         endCursor,
                     },
-                } as webConnection;                
+                } as webConnection;
             } catch (error) {
                 console.error('Error al obtener webs:', error);
                 throw new Error('Error al obtener webs');
@@ -185,10 +185,7 @@ const resolvers = {
     Mutation: {
         create_web: async (_parent: unknown, { web }: { web: formWeb }, context: Context): Promise<web> => {
             try {
-                const newWeb = await context.prisma.web.create({
-                    data: web
-                })
-                return newWeb
+
             } catch (error) {
                 console.error('Error al crear web:', error);
                 throw new Error('Error al crear web');
@@ -196,11 +193,9 @@ const resolvers = {
         },
         update_web: async (_parent: unknown, { web_id, fieldName, value }: { web_id: number, fieldName: string, value: string }, context: Context): Promise<web> => {
             try {
-                const updatedWeb = await context.prisma.web.update({
-                    where: { web_id },
-                    data: { [fieldName]: value }
-                })
-                return updatedWeb
+                let updateData: any = { [fieldName]: value };
+
+
             } catch (error) {
                 console.error('Error al actualizar web:', error);
                 throw new Error('Error al actualizar web');

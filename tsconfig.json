@@ -8,7 +8,7 @@
         "types": ["node"],
         "strict": true,
         "noImplicitAny": true,
-        "resolveJsonModule": true,
+        "moduleResolution": "node",
         "allowJs": true,
         "lib": ["ES2020", "DOM"],
         "esModuleInterop": true
