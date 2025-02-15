@@ -68,12 +68,14 @@ const typeDefs = `#graphql
         web_desc: String!
         web_img: String!
         web_st: Int
-        web_usu_create: String
-        web_fecha_create: DateTime
-        web_usu_update: String
-        web_fecha_update: DateTime
+        web_galeria: [web_galeriaForm]
     }
     
+    input web_galeriaForm {
+        gal_img: String!
+        gal_st: Int
+    }
+
     scalar DateTime
     scalar Date
 `
@@ -90,6 +92,13 @@ interface web {
     web_fecha_create: Date | null;
     web_usu_update: string | null;
     web_fecha_update: Date | null;
+    web_galeria: web_galeria[];
+}
+
+interface web_galeria {
+    gal_id?: number | null;
+    gal_web: number;
+    gal_img: string;
 }
 
 interface formWeb {
@@ -99,10 +108,7 @@ interface formWeb {
     web_desc: string;
     web_img: string;
     web_st: number | null;
-    web_usu_create: string | null;
-    web_fecha_create: Date | null;
-    web_usu_update: string | null;
-    web_fecha_update: Date | null;
+    web_galeria: web_galeria[];
 }
 
 interface webConnection {
