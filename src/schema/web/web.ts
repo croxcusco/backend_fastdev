@@ -92,13 +92,15 @@ interface web {
     web_fecha_create: Date | null;
     web_usu_update: string | null;
     web_fecha_update: Date | null;
-    web_galeria: web_galeria[];
-}
-
-interface web_galeria {
-    gal_id?: number | null;
-    gal_web: number;
-    gal_img: string;
+    web_galeria: {
+        gal_id: number;
+        gal_img: string;
+        gal_st: number | null;
+        gal_usu_create: string | null;
+        gal_fecha_create: Date | null;
+        gal_usu_update: string | null;
+        gal_fecha_update: Date | null;
+    }[]
 }
 
 interface formWeb {
@@ -108,7 +110,12 @@ interface formWeb {
     web_desc: string;
     web_img: string;
     web_st: number | null;
-    web_galeria: web_galeria[];
+    web_galeria: [
+        {
+            gal_id?: number;
+            gal_img: string;
+        }
+    ]
 }
 
 interface webConnection {
@@ -191,17 +198,104 @@ const resolvers = {
     Mutation: {
         create_web: async (_parent: unknown, { web }: { web: formWeb }, context: Context): Promise<web> => {
             try {
+                if (web.web_titulo.length > 100) {
+                    throw new Error('El título no puede exceder los 100 caracteres');
+                }
+                if (web.web_mini_desc.length > 100) {
+                    throw new Error('La mini descripción no puede exceder los 100 caracteres');
+                }
+                if (web.web_desc.length > 500) {
+                    throw new Error('La descripción no puede exceder los 500 caracteres');
+                }
+                if (!web.web_img) {
+                    throw new Error('La imagen no puede estar vacía');
+                }
 
+                const webData: any = {
+                    web_categoria: web.web_categoria,
+                    web_titulo: web.web_titulo,
+                    web_mini_desc: web.web_mini_desc,
+                    web_desc: web.web_desc,
+                    web_img: web.web_img,
+                    web_st: web.web_st,
+                    web_fecha_create: new Date(),
+                    web_usu_create: 'admin',
+                };
+
+                if (web.web_galeria && web.web_galeria.length > 0) {
+                    webData.web_galeria = {
+                        createMany: {
+                            data: web.web_galeria.map(galeria => ({
+                                gal_img: galeria.gal_img,
+                                gal_fecha_create: new Date(),
+                                gal_usu_create: 'admin'
+                            }))
+                        }
+                    };
+                }
+
+                const newWeb = await context.prisma.web.create({
+                    data: webData,
+                    include: {
+                        web_galeria: true
+                    }
+                });
+
+                return newWeb;
             } catch (error) {
                 console.error('Error al crear web:', error);
                 throw new Error('Error al crear web');
             }
         },
         update_web: async (_parent: unknown, { web_id, fieldName, value }: { web_id: number, fieldName: string, value: string }, context: Context): Promise<web> => {
+            // Lista de campos y su tipo de datos esperado
+            const fieldTypes: { [key: string]: string } = {
+                web_categoria: "number",
+                web_titulo: "string",
+                web_mini_desc: "string",
+                web_desc: "string",
+                web_img: "string",
+                web_st: "number",
+            };
+
+            // Verificar si el campo existe en la lista de campos válidos
+            if (!(fieldName in fieldTypes)) {
+                throw new Error(`El campo ${fieldName} no es válido para actualización.`);
+            }
+
+            // Validación y conversión del valor dependiendo del tipo de campo
+            let formattedValue: number | string | Date = value;
+            switch (fieldTypes[fieldName]) {
+                case 'number':
+                    formattedValue = +value;
+                    if (isNaN(formattedValue)) throw new Error(`El valor de ${fieldName} debe ser un número válido.`);
+                    break;
+                case 'Date':
+                    const dateValue: Date = new Date(value);
+                    formattedValue = dateValue;
+                    if (isNaN(dateValue.getTime())) throw new Error(`El valor de ${fieldName} debe ser una fecha válida.`);
+                    break;
+                case 'string':
+                    if (typeof value !== 'string') throw new Error(`El valor de ${fieldName} debe ser un string.`);
+                    break;
+                default:
+                    throw new Error(`Tipo de dato desconocido para el campo ${fieldName}.`);
+            }
+
             try {
-                let updateData: any = { [fieldName]: value };
+                const updatedWeb = await context.prisma.web.update({
+                    where: { web_id },
+                    data: {
+                        [fieldName]: formattedValue,
+                        web_fecha_update: new Date(),
+                        web_usu_update: "admin"
+                    },
+                    include: {
+                        web_galeria: true
+                    }
+                });
 
-
+                return updatedWeb;
             } catch (error) {
                 console.error('Error al actualizar web:', error);
                 throw new Error('Error al actualizar web');
