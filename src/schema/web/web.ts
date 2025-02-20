@@ -15,6 +15,37 @@
 
 //     @@index([web_categoria], map: "fk_web_categoria_idx")
 //   }
+
+
+
+const respWeb = {
+    "data": {
+        "web_id": 0,
+        "web_categoria": 3,
+        "web_titulo": "asdasdasd",
+        "web_mini_desc": "asdasdasdasd",
+        "web_desc": "asd asd asd asd asd ",
+        "web_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg",
+        "web_st": 1,
+        "web_galeria": [
+            {
+                "gal_id": 0,
+                "gal_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg"
+            },            {
+                "gal_id": 1,
+                "gal_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg"
+            }, {
+                "gal_id": 2,
+                "gal_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg"
+            }
+
+        ]
+    },
+    "success": true,
+    "msg": "Imagen subida correctamente"
+}
+
+
 import { DateResolver, DateTimeResolver } from 'graphql-scalars';
 import { Context } from '../../context';
 import { v2 as cloudinary } from 'cloudinary';
@@ -72,8 +103,8 @@ const typeDefs = `#graphql
     }
     
     input web_galeriaForm {
+        gal_id: Int
         gal_img: String!
-        gal_st: Int
     }
 
     scalar DateTime
@@ -201,8 +232,8 @@ const resolvers = {
                 if (web.web_titulo.length > 100) {
                     throw new Error('El título no puede exceder los 100 caracteres');
                 }
-                if (web.web_mini_desc.length > 100) {
-                    throw new Error('La mini descripción no puede exceder los 100 caracteres');
+                if (web.web_mini_desc.length > 45) {
+                    throw new Error('La mini descripción no puede exceder los 45 caracteres');
                 }
                 if (web.web_desc.length > 500) {
                     throw new Error('La descripción no puede exceder los 500 caracteres');
@@ -222,20 +253,38 @@ const resolvers = {
                     web_usu_create: 'admin',
                 };
 
-                if (web.web_galeria && web.web_galeria.length > 0) {
+                if (web.web_galeria) {
                     webData.web_galeria = {
-                        createMany: {
-                            data: web.web_galeria.map(galeria => ({
-                                gal_img: galeria.gal_img,
-                                gal_fecha_create: new Date(),
-                                gal_usu_create: 'admin'
-                            }))
-                        }
+                        create: web.web_galeria.map((galeria: any) => ({
+                            gal_img: galeria.gal_img
+                        }))
                     };
                 }
 
+
+
                 const newWeb = await context.prisma.web.create({
-                    data: webData,
+                    data: {
+                        web_titulo: webData.web_titulo,
+                        web_categoria: webData.web_categoria,
+                        web_mini_desc: webData.web_mini_desc,
+                        web_desc: webData.web_desc,
+                        web_img: webData.web_img,
+                        web_st: webData.web_st,
+                        web_usu_create: 'admin',
+                        web_fecha_create: new Date(),
+                        web_galeria: {
+                            createMany: {
+                                data: [
+                                    ...web.web_galeria
+                                ]
+                            }
+                        }
+                        // web_categoria_web_web_categoriaToweb_categoria: {
+                        //     connect: { cat_id: web.web_categoria }
+                        // },
+                        
+                    },
                     include: {
                         web_galeria: true
                     }
@@ -244,7 +293,11 @@ const resolvers = {
                 return newWeb;
             } catch (error) {
                 console.error('Error al crear web:', error);
-                throw new Error('Error al crear web');
+                if (error instanceof Error) {
+                    throw new Error('Error al crear web: ' + error.message);
+                } else {
+                    throw new Error('Error desconocido al crear web');
+                }
             }
         },
         update_web: async (_parent: unknown, { web_id, fieldName, value }: { web_id: number, fieldName: string, value: string }, context: Context): Promise<web> => {
