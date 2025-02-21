@@ -30,6 +30,14 @@ async function startApolloServer() {
     }));
     app.use(express.json());
 
+    app.options("*", (req, res) => {
+        res.header("Access-Control-Allow-Origin", "https://crox.up.railway.app");
+        res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.header("Access-Control-Allow-Credentials", "true");
+        res.sendStatus(200); // Enviar un 200 OK
+    });
+
     // Usar el router de la API
     app.use('/api', apiRouter);
     app.use('/api/publicaciones', publicacionesRouter);
@@ -43,7 +51,7 @@ async function startApolloServer() {
 
     await server.start();
 
-    app.use("/graphql", expressMiddleware(server, { context: context }));
+    app.use("/graphql", cors(), express.json(), expressMiddleware(server, { context: context }));
 
     const PORT = parseInt(process.env.PORT || '4000');
     app.listen(PORT, () => {
