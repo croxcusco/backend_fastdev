@@ -16,16 +16,8 @@ const prisma01 = new PrismaClient();
 async function startApolloServer() {
     const app = express();
 
-    const allowedOrigins = ['http://localhost:5173', 'https://crox.up.railway.app/']; // Agrega más orígenes aquí
-
     app.use(cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                callback(new Error('No permitido por CORS'));
-            }
-        },
+        origin: 'https://crox.up.railway.app/', // Reemplaza con la URL de tu frontend
         credentials: true,
     }));
     app.use(express.json());
