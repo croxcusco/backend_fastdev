@@ -8,6 +8,7 @@ import { typeDefs, resolvers } from './schema';
 import express from 'express';
 import cors from 'cors';
 import apiRouter from './api/upload';
+import publicacionesRouter from './api/publicaciones';
 
 const prisma01 = new PrismaClient();
 // const prisma02 = new PrismaClient2();
@@ -23,6 +24,8 @@ async function startApolloServer() {
 
     // Usar el router de la API
     app.use('/api', apiRouter);
+    app.use('/api/publicaciones', publicacionesRouter);
+
 
     // Ruta para GraphQL
     const server = new ApolloServer({

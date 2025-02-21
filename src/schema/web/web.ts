@@ -31,7 +31,7 @@ const respWeb = {
             {
                 "gal_id": 0,
                 "gal_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg"
-            },            {
+            }, {
                 "gal_id": 1,
                 "gal_img": "https://res.cloudinary.com/dgzxplp31/image/upload/v1740020139/ug99ckxmlvb7vrxxvxuu.jpg"
             }, {
@@ -227,7 +227,7 @@ const resolvers = {
         }
     },
     Mutation: {
-        create_web: async (_parent: unknown, { web }: { web: formWeb }, context: Context): Promise<web> => {
+        create_web: async (_parent: unknown, { web }: { web: formWeb }, context: Context) => {
             try {
                 if (web.web_titulo.length > 100) {
                     throw new Error('El título no puede exceder los 100 caracteres');
@@ -242,55 +242,39 @@ const resolvers = {
                     throw new Error('La imagen no puede estar vacía');
                 }
 
-                const webData: any = {
-                    web_categoria: web.web_categoria,
-                    web_titulo: web.web_titulo,
-                    web_mini_desc: web.web_mini_desc,
-                    web_desc: web.web_desc,
-                    web_img: web.web_img,
-                    web_st: web.web_st,
-                    web_fecha_create: new Date(),
-                    web_usu_create: 'admin',
-                };
-
-                if (web.web_galeria) {
-                    webData.web_galeria = {
-                        create: web.web_galeria.map((galeria: any) => ({
-                            gal_img: galeria.gal_img
-                        }))
-                    };
-                }
-
-
-
-                const newWeb = await context.prisma.web.create({
-                    data: {
-                        web_titulo: webData.web_titulo,
-                        web_categoria: webData.web_categoria,
-                        web_mini_desc: webData.web_mini_desc,
-                        web_desc: webData.web_desc,
-                        web_img: webData.web_img,
-                        web_st: webData.web_st,
-                        web_usu_create: 'admin',
+                const newWeb = await context.prisma.$transaction(async (prisma) => {
+                    const webData: any = {
+                        web_categoria: web.web_categoria,
+                        web_titulo: web.web_titulo,
+                        web_mini_desc: web.web_mini_desc,
+                        web_desc: web.web_desc,
+                        web_img: web.web_img,
+                        web_st: web.web_st,
                         web_fecha_create: new Date(),
-                        web_galeria: {
-                            createMany: {
-                                data: [
-                                    ...web.web_galeria
-                                ]
-                            }
+                        web_usu_create: 'admin',
+                    };
+
+                    const createdWeb = await prisma.web.create({
+                        data: webData,
+                        include: {
+                            web_galeria: true
                         }
-                        // web_categoria_web_web_categoriaToweb_categoria: {
-                        //     connect: { cat_id: web.web_categoria }
-                        // },
-                        
-                    },
-                    include: {
-                        web_galeria: true
-                    }
+                    });
+
+                    const galeriaData = web.web_galeria.map((galeria) => ({
+                        gal_web: createdWeb.web_id,
+                        gal_img: galeria.gal_img,
+                    }));
+
+                    await prisma.web_galeria.createMany({
+                        data: galeriaData
+                    });
+
+                    return createdWeb;
                 });
 
                 return newWeb;
+
             } catch (error) {
                 console.error('Error al crear web:', error);
                 if (error instanceof Error) {
