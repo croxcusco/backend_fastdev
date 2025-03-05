@@ -45,12 +45,6 @@ router.get('/', async (req, res) => {
                         cat_nombre: true,
                     },
                 },
-                web_galeria: {
-                    select: {
-                        gal_id: true,
-                        gal_img: true,
-                    }
-                }
             },
             orderBy: {
                 web_fecha_create: 'desc',
@@ -73,6 +67,48 @@ router.get('/', async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener las publicaciones' });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const publicacion = await prisma.web.findUnique({
+            where: { 
+                web_id: Number(id),
+                web_st: 1,
+            },
+            select: {
+                web_id: true,
+                web_titulo: true,
+                web_mini_desc: true,
+                web_desc: true,
+                web_img: true,
+                web_fecha_create: true,
+                web_categoria: true,
+                web_categoria_web_web_categoriaToweb_categoria: {
+                    select: {
+                        cat_id: true,
+                        cat_nombre: true,
+                    },
+                },
+                web_galeria: {
+                    select: {
+                        gal_id: true,
+                        gal_img: true,
+                    }
+                }
+            },
+        });
+
+        if (!publicacion) {
+            return res.status(404).json({ error: 'Publicación no encontrada' });
+        }
+
+        res.json(publicacion);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener la publicación' });
     }
 });
 
