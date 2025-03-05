@@ -44,6 +44,12 @@ router.get('/', async (req, res) => {
                         cat_id: true,
                         cat_nombre: true,
                     },
+                },
+                web_galeria: {
+                    select: {
+                        gal_id: true,
+                        gal_img: true,
+                    }
                 }
             },
             orderBy: {
